@@ -1,0 +1,28 @@
+/* Đảm bảo toàn bộ trang chiếm hết chiều cao màn hình */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main sẽ tự động giãn ra để đẩy footer xuống */
+main {
+    flex: 1 0 auto;
+}
+
+/* FOOTER NHỎ GỌN */
+footer {
+    flex-shrink: 0; /* Không cho footer bị co */
+    background-color: #3E2723; /* Màu nâu đậm */
+    color: #f8bbd0; /* Chữ hồng nhạt */
+    padding: 15px 0; /* Thu nhỏ padding theo yêu cầu */
+    font-size: 0.8rem; /* Chữ nhỏ lại */
+    text-align: center;
+}
+
+footer p {
+    margin-bottom: 0;
+}

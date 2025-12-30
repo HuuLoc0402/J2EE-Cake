@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main class="container py-4">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mx-auto"
+         style="max-width: 650px; height: calc(100vh - 150px); min-height: 500px; display: flex; flex-direction: column;">
+
+        <div class="card-header bg-danger text-white py-3 text-center" style="flex-shrink: 0;">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-chat-dots-fill me-2"></i>Hỗ trợ trực tuyến</h5>
+        </div>
+
+        <div id="chatBoxBodyUser" class="card-body p-4 flex-grow-1 overflow-y-auto" style="background: #fdf2f4;">
+            <div id="userMessageArea">
+                <div th:each="msg : ${messages}" class="mb-3 d-flex flex-column"
+                     th:classappend="${msg.senderRole == 'ROLE_USER' ? 'align-items-end' : 'align-items-start'}">
+                    <div class="p-3 rounded-4 shadow-sm mb-1" style="max-width: 80%;"
+                         th:classappend="${msg.senderRole == 'ROLE_USER' ? 'bg-danger text-white' : 'bg-white border text-dark'}">
+                        <p class="mb-0" th:text="${msg.content}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white p-3 border-top" style="flex-shrink: 0;">
+            <div class="input-group">
+                <input type="text" id="userInp" class="form-control rounded-pill-start border-danger shadow-none"
+                       placeholder="Nhập nội dung cần hỗ trợ..." autocomplete="off"
+                       onkeypress="if(event.key === 'Enter') window.sendUserWS()">
+                <button class="btn btn-danger rounded-pill-end px-4" id="btnSendWS" onclick="window.sendUserWS()">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        console.log("--- INITIALIZING USER CHAT SCRIPT ---");
+
+        window.stompUser = null;
+
+        // Định nghĩa hàm Global gắn vào window để onclick luôn tìm thấy
+        window.sendUserWS = function() {
+            console.log("Button clicked or Enter pressed");
+            const inp = document.getElementById('userInp');
+            const content = inp ? inp.value.trim() : "";
+
+            if (content && window.stompUser && window.stompUser.connected) {
+                const m = {
+                    content: content,
+                    senderRole: 'ROLE_USER',
+                    timestamp: new Date().toISOString()
+                };
+                window.stompUser.send("/app/chat.send", {}, JSON.stringify(m));
+                window.renderUserMsg(m);
+                inp.value = '';
+            } else {
+                console.error("Connection not ready or empty content");
+                if(!window.stompUser || !window.stompUser.connected) connectUserWS();
+            }
+        };
+
+        window.renderUserMsg = function(m) {
+            const area = document.getElementById('userMessageArea');
+            if (!area) return;
+            const isMe = m.senderRole === 'ROLE_USER';
+            const html = `
+                <div class="mb-3 d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}">
+                    <div class="p-3 rounded-4 shadow-sm mb-1 ${isMe ? 'bg-danger text-white' : 'bg-white border text-dark'}"
+                         style="max-width: 80%; border-radius: 20px !important;">
+                        <p class="mb-0">${m.content}</p>
+                    </div>
+                </div>`;
+            area.insertAdjacentHTML('beforeend', html);
+            window.scrollChat();
+        };
+
+        window.scrollChat = function() {
+            const b = document.getElementById('chatBoxBodyUser');
+            if (b) b.scrollTop = b.scrollHeight;
+        };
+
+        function connectUserWS() {
+            if (typeof SockJS === 'undefined') {
+                console.error("SockJS library not loaded!");
+                setTimeout(connectUserWS, 1000);
+                return;
+            }
+            const socket = new SockJS('/ws-chat');
+            window.stompUser = Stomp.over(socket);
+            window.stompUser.debug = null;
+            window.stompUser.connect({}, function () {
+                console.log("USER WEBSOCKET CONNECTED SUCCESS");
+                window.stompUser.subscribe('/user/queue/messages', function (msg) {
+                    window.renderUserMsg(JSON.parse(msg.body));
+                });
+            }, function(err) {
+                console.error("Connection error:", err);
+                setTimeout(connectUserWS, 5000);
+            });
+        }
+
+        // Tự khởi động
+        connectUserWS();
+        setTimeout(window.scrollChat, 500);
+    </script>
+</main>
+</body>
+</html>

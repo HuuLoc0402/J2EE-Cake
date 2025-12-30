@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main class="container py-5">
+    <div class="row g-5">
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+                <h4 class="fw-bold mb-4" style="color: #3E2723; border-left: 4px solid #FF69B4; padding-left: 10px;">
+                    Thông Tin Nhận Bánh
+                </h4>
+                <form th:action="@{/order/create}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ và tên người nhận</label>
+                        <input type="text" name="receiverName" class="form-control rounded-pill border-danger" th:value="${user.fullName}" required>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Số điện thoại</label>
+                            <input type="tel" name="phone" class="form-control rounded-pill border-danger" th:value="${user.phone}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Ngày muốn nhận bánh</label>
+                            <input type="date" name="deliveryDate" class="form-control rounded-pill border-danger" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa chỉ chi tiết</label>
+                        <textarea name="shippingAddress" class="form-control rounded-4 border-danger" rows="3" placeholder="Số nhà, tên đường, phường/xã..." required></textarea>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="vnpay" value="VNPAY" checked>
+                            <label class="form-check-label fw-bold" for="vnpay">
+                                <i class="bi bi-credit-card-2-back me-2"></i>Thanh toán qua cổng VNPay
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold shadow mt-4 py-3">
+                        XÁC NHẬN VÀ THANH TOÁN
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white sticky-top" style="top: 100px;">
+                <h5 class="fw-bold mb-4 text-center">Tóm Tắt Đơn Hàng</h5>
+                <div th:each="item : ${cartItems}" class="d-flex align-items-center mb-3">
+                    <img th:src="${item.cake.image}" class="rounded-3 me-3 shadow-sm" width="60" height="60" style="object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold" th:text="${item.cake.name}"></h6>
+                        <small class="text-muted" th:text="'Số lượng: ' + ${item.quantity}"></small>
+                    </div>
+                    <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(item.cake.price * item.quantity, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fs-4 fw-bold text-brown">
+                    <span>TỔNG TIỀN:</span>
+                    <span class="text-danger" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                </div>
+                <p class="small text-muted mt-3 text-center"><i class="bi bi-info-circle me-1"></i>Vui lòng kiểm tra kỹ thông tin trước khi đặt hàng.</p>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<main class="container py-5">
+    <div class="d-flex align-items-center mb-4">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-circle me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold m-0" style="color: var(--text-brown);">🛒 Giỏ Hàng Của Bạn</h2>
+    </div>
+
+    <div class="row g-4" th:if="${cartItems != null and not #lists.isEmpty(cartItems)}">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3">Sản phẩm</th>
+                        <th>Giá</th>
+                        <th style="width: 150px;">Số lượng</th>
+                        <th>Tổng</th>
+                        <th class="text-center">Xóa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${cartItems}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center py-2">
+                                <img th:src="${item.cake.image != null ? item.cake.image : '/images/default-cake.jpg'}"
+                                     class="rounded-3 me-3 shadow-sm" width="70" height="70" style="object-fit: cover;">
+                                <div>
+                                    <span class="fw-bold d-block text-brown" th:text="${item.cake.name}"></span>
+                                    <small class="text-muted" th:text="${item.cake.category != null ? item.cake.category.name : 'Bánh kem'}"></small>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(item.cake.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                        <td>
+                            <form th:action="@{/cart/update}" method="post" class="d-flex align-items-center">
+                                <input type="hidden" name="itemId" th:value="${item.id}">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-danger" type="button"
+                                            th:onclick="'adjustCartQty(' + ${item.id} + ', -1)'">-</button>
+
+                                    <input type="number" th:id="'qty-' + ${item.id}" name="quantity"
+                                           th:value="${item.quantity}"
+                                           class="form-control text-center border-danger fw-bold"
+                                           readonly th:max="${item.cake.stockQuantity}">
+
+                                    <button class="btn btn-outline-danger" type="button"
+                                            th:onclick="'adjustCartQty(' + ${item.id} + ', 1)'">+</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(item.cake.price * item.quantity, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                        <td class="text-center">
+                            <a th:href="@{/cart/remove/{id}(id=${item.id})}"
+                               class="btn btn-sm btn-outline-danger rounded-circle"
+                               onclick="return confirm('Xóa sản phẩm này khỏi giỏ hàng?')">
+                                <i class="bi bi-trash3"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white sticky-top" style="top: 100px;">
+                <h5 class="fw-bold mb-4 border-bottom pb-2">Hóa đơn chi tiết</h5>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Tạm tính:</span>
+                    <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                </div>
+                <div class="d-flex justify-content-between mb-4 fs-4 fw-bold text-brown border-top pt-3">
+                    <span>Tổng cộng:</span>
+                    <span class="text-danger" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="/order/checkout" class="btn btn-danger btn-lg rounded-pill fw-bold shadow py-3">
+                        <i class="bi bi-wallet2 me-2"></i> TIẾN HÀNH ĐẶT HÀNG
+                    </a>
+                    <a href="/cake" class="btn btn-outline-secondary rounded-pill py-2">
+                        Tiếp tục chọn bánh
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${cartItems == null or #lists.isEmpty(cartItems)}" class="text-center py-5 shadow-sm rounded-4 bg-white border">
+        <div class="mb-4">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+        </div>
+        <h3 class="fw-bold text-muted">Giỏ hàng của bạn đang trống!</h3>
+        <p class="text-secondary mb-4">Có vẻ như bạn chưa chọn được chiếc bánh ưng ý nào.</p>
+        <a href="/cake" class="btn btn-danger rounded-pill px-5 py-3 fw-bold">
+            XEM DANH SÁCH BÁNH NGAY
+        </a>
+    </div>
+
+    <script>
+        function adjustCartQty(itemId, amount) {
+            const qtyInput = document.getElementById('qty-' + itemId);
+            if (!qtyInput) return;
+
+            const max = parseInt(qtyInput.getAttribute('max'));
+            let currentVal = parseInt(qtyInput.value) || 1;
+            let newVal = currentVal + amount;
+
+            if (newVal >= 1 && newVal <= max) {
+                qtyInput.value = newVal;
+                // Tự động gửi form để cập nhật số lượng và tổng tiền trên server
+                qtyInput.form.submit();
+            } else if (newVal > max) {
+                alert("Số lượng bánh trong kho đã đạt giới hạn!");
+            }
+        }
+    </script>
+</main>
+</body>
+</html>

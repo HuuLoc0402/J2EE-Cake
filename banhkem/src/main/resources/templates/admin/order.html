@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0" style="color: var(--text-brown);">Quản lý Đơn hàng</h3>
+        <span class="badge bg-danger rounded-pill px-3" th:text="${orders.size()} + ' đơn hàng'"></span>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                <tr>
+                    <th class="ps-3">Mã ĐH</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Địa chỉ giao</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Cập nhật</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o : ${orders}">
+                    <td class="ps-3"><span class="badge bg-light text-dark border" th:text="${'#' + o.id}"></span></td>
+                    <td>
+                        <div class="fw-bold" th:text="${o.user.fullName}"></div>
+                        <small class="text-muted" th:text="${o.phone}"></small>
+                    </td>
+                    <td th:text="${#temporals.format(o.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td style="max-width: 180px;" class="text-truncate" th:title="${o.shippingAddress}" th:text="${o.shippingAddress}"></td>
+                    <td class="text-danger fw-bold" th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                    <td>
+                        <span th:classappend="${o.status.name() == 'COMPLETED' ? 'badge bg-success' :
+                                           (o.status.name() == 'CANCELLED' ? 'badge bg-danger' :
+                                           (o.status.name() == 'SHIPPING' ? 'badge bg-info' : 'badge bg-warning text-dark'))}"
+                              class="px-3 py-2 rounded-pill shadow-sm"
+                              th:text="${o.status}"></span>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/orders/updateStatus}" method="post" class="d-flex gap-2 justify-content-center">
+                            <input type="hidden" name="orderId" th:value="${o.id}">
+                            <select name="status" class="form-select form-select-sm shadow-sm" style="width: 140px; border-radius: 20px;">
+                                <option value="PENDING" th:selected="${o.status.name() == 'PENDING'}">Chờ xác nhận</option>
+                                <option value="CONFIRMED" th:selected="${o.status.name() == 'CONFIRMED'}">Đã thanh toán</option>
+                                <option value="SHIPPING" th:selected="${o.status.name() == 'SHIPPING'}">Đang giao hàng</option>
+                                <option value="COMPLETED" th:selected="${o.status.name() == 'COMPLETED'}">Hoàn thành</option>
+                                <option value="CANCELLED" th:selected="${o.status.name() == 'CANCELLED'}">Hủy đơn</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary rounded-circle shadow-sm">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

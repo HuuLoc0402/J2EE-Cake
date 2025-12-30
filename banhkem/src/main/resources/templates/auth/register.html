@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký - BanhKem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background: #FFF0F5; height: 100vh; display: flex; align-items: center; padding: 20px 0;">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card p-4 shadow-lg border-0" style="border-radius: 20px;">
+                <h2 class="text-center fw-bold mb-4">Đăng Ký Thành Viên 🍰</h2>
+                <form id="registerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tên đăng nhập</label>
+                            <input type="text" id="username" class="form-control rounded-pill" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Mật khẩu</label>
+                            <input type="password" id="password" class="form-control rounded-pill" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ và Tên</label>
+                        <input type="text" id="fullName" class="form-control rounded-pill" placeholder="Nhập đầy đủ họ tên" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" id="email" class="form-control rounded-pill" placeholder="example@gmail.com" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Số điện thoại</label>
+                        <input type="tel" id="phone" class="form-control rounded-pill" placeholder="0xxx xxx xxx" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold mb-2 shadow">TẠO TÀI KHOẢN</button>
+                    <div class="text-center mt-3">
+                        <span>Đã có tài khoản? </span><a href="/auth/login" class="text-danger fw-bold text-decoration-none">Đăng nhập</a>
+                    </div>
+                    <hr>
+                    <a href="/" class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-bold">Quay lại trang chủ</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            fullName: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value
+        };
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert("Đăng ký thành công! Hãy đăng nhập để mua sắm.");
+                window.location.href = "/auth/login";
+            } else {
+                const err = await response.json();
+                alert("Lỗi: " + (err.message || "Tên đăng nhập hoặc Email đã tồn tại!"));
+            }
+        } catch (error) {
+            alert("Không thể kết nối đến máy chủ!");
+        }
+    });
+</script>
+</body>
+</html>

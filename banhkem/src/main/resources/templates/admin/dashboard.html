@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+        <h2 style="color: #3E2723;"><i class="bi bi-bar-chart-line-fill me-2"></i>Thống Kê Kinh Doanh <span th:text="${currentYear}"></span></h2>
+
+        <form th:action="@{/admin/dashboard}" method="get" class="d-flex gap-2">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar3"></i></span>
+                <input type="number" name="year" th:value="${currentYear}" class="form-control border-start-0" style="width: 110px;" min="2000" max="2100">
+                <button type="submit" class="btn btn-danger btn-sm px-3">Xem báo cáo</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card p-4 text-center shadow-sm border-0 bg-white rounded-4" style="border-left: 5px solid #dc3545 !important;">
+                <h6 class="text-muted small text-uppercase fw-bold">Tổng Doanh Thu Năm</h6>
+                <h2 class="fw-bold text-danger mb-0"
+                    th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></h2>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4 text-center shadow-sm border-0 bg-white rounded-4" style="border-left: 5px solid #0d6efd !important;">
+                <h6 class="text-muted small text-uppercase fw-bold">Tổng Sản Lượng Bán</h6>
+                <h2 class="fw-bold text-primary mb-0" th:text="${totalCakesSold + ' cái'}"></h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-12">
+            <div class="card p-4 shadow-sm border-0 rounded-4 bg-white">
+                <h5 class="mb-4 fw-bold" style="color: #3E2723;"><i class="bi bi-cash-stack me-2 text-success"></i>Doanh Thu Hàng Tháng (VNĐ)</h5>
+                <div style="position: relative; height:350px; width:100%">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="card p-4 shadow-sm border-0 rounded-4 bg-white">
+                <h5 class="mb-4 fw-bold" style="color: #3E2723;"><i class="bi bi-box-seam me-2 text-primary"></i>Số Lượng Bánh Bán Ra (Cái)</h5>
+                <div style="position: relative; height:350px; width:100%">
+                    <canvas id="quantityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+        /* Data from Spring Boot */
+        const revenueData = [[${revenueData}]];
+        const cakeCountData = [[${cakeCountData}]];
+        const labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+
+        // 1. Cấu hình Biểu đồ Doanh Thu (Bar Chart)
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: revenueData,
+                    backgroundColor: 'rgba(25, 135, 84, 0.6)',
+                    borderColor: '#198754',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => new Intl.NumberFormat('vi-VN').format(value) + ' ₫'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => 'Doanh thu: ' + new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' VNĐ'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Cấu hình Biểu đồ Số Lượng (Line Chart)
+        new Chart(document.getElementById('quantityChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số lượng bánh',
+                    data: cakeCountData,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => 'Số lượng: ' + context.parsed.y + ' cái'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</main>
+</body>
+</html>

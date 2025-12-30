@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<main class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none text-primary">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/cake}" class="text-decoration-none text-primary">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${cake.name}">Tên bánh</li>
+        </ol>
+    </nav>
+
+    <div class="card border-0 shadow-lg p-4 rounded-4 bg-white">
+        <div class="row g-5">
+            <div class="col-md-6">
+                <div class="position-relative overflow-hidden rounded-4 shadow">
+                    <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}"
+                         class="img-fluid w-100"
+                         style="max-height: 500px; object-fit: cover; transition: transform .3s;"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                </div>
+            </div>
+
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <div class="mb-2">
+                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill"
+                          th:text="${cake.category != null ? cake.category.name : 'Chưa phân loại'}">
+                    </span>
+                </div>
+
+                <h1 class="display-5 fw-bold mb-3" style="color: #3E2723;" th:text="${cake.name}">Tên bánh kem</h1>
+
+                <h2 class="text-danger fw-bold my-3"
+                    th:text="${#numbers.formatDecimal(cake.price != null ? cake.price : 0, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">
+                </h2>
+
+                <hr class="my-4 opacity-25">
+
+                <h5 class="fw-bold">Mô tả sản phẩm:</h5>
+                <p class="text-muted fs-5 lh-lg" th:text="${cake.description != null ? cake.description : 'Đang cập nhật mô tả cho sản phẩm này...'}"></p>
+
+                <div class="row g-3 my-4">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3 text-center border">
+                            <i class="bi bi-box-seam d-block fs-3 mb-2 text-primary"></i>
+                            <span class="small d-block">Tình trạng</span>
+                            <strong th:id="'stock-status'" th:text="${cake.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}"></strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3 text-center border">
+                            <i class="bi bi-truck d-block fs-3 mb-2 text-primary"></i>
+                            <span class="small d-block">Giao hàng</span>
+                            <strong>Miễn phí 5km</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <form th:action="@{/cart/add}" method="post" id="addToCartForm">
+                        <input type="hidden" name="cakeId" th:value="${cake.id}">
+
+                        <div class="mb-4" th:if="${cake.stockQuantity > 0}">
+                            <label for="quantity" class="form-label fw-bold">Chọn số lượng:</label>
+                            <div class="d-flex align-items-center">
+                                <div class="input-group" style="max-width: 160px;">
+                                    <button class="btn btn-outline-danger" type="button" onclick="adjustQty(-1)">-</button>
+                                    <input type="number" id="quantity" name="quantity"
+                                           class="form-control text-center shadow-none border-danger fw-bold"
+                                           value="1" min="1"
+                                           th:max="${cake.stockQuantity}" readonly>
+                                    <button class="btn btn-outline-danger" type="button" onclick="adjustQty(1)">+</button>
+                                </div>
+                                <span class="ms-3 text-muted">Kho còn: <strong th:text="${cake.stockQuantity}" id="maxStock">0</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg py-3 rounded-pill fw-bold shadow-sm"
+                                    th:disabled="${cake.stockQuantity <= 0}">
+                                <i class="bi bi-cart-plus-fill me-2"></i> THÊM VÀO GIỎ HÀNG
+                            </button>
+
+                            <a th:href="@{/cake}" class="btn btn-outline-secondary btn-lg py-3 rounded-pill">
+                                <i class="bi bi-arrow-left me-2"></i> Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function adjustQty(amount) {
+            const qtyInput = document.getElementById('quantity');
+            const maxQuantity = [[${cake.stockQuantity}]];
+            let currentVal = parseInt(qtyInput.value) || 1;
+            let newVal = currentVal + amount;
+
+            if (newVal >= 1 && newVal <= maxQuantity) {
+                qtyInput.value = newVal;
+            } else if (newVal > maxQuantity) {
+                alert("Số lượng đạt giới hạn tồn kho!");
+            }
+        }
+
+        document.getElementById('addToCartForm').onsubmit = function() {
+            const qtyInput = document.getElementById('quantity');
+            const val = parseInt(qtyInput.value);
+            if (isNaN(val) || val < 1) {
+                alert("Vui lòng chọn ít nhất 1 sản phẩm!");
+                return false;
+            }
+            return true;
+        };
+    </script>
+</main>
+</body>
+</html>

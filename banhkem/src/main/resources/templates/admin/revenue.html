@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::title}, ~{::div.container}, ~{::script.chart-script})}">
+<head>
+    <title>Quản Lý Doanh Thu</title>
+</head>
+<body>
+<div class="container">
+    <h2>📈 Quản Lý Doanh Thu Năm <span th:text="${currentYear}">2025</span></h2>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    Biểu Đồ Doanh Thu Theo Tháng
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyRevenueChart" style="height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:fragment="chart-script" class="chart-script" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:fragment="chart-script" class="chart-script">
+    // Lấy dữ liệu từ Model
+    var months = JSON.parse(decodeHtmlEntities('[[${monthsJson}]]'));
+    var revenues = JSON.parse(decodeHtmlEntities('[[${revenuesJson}]]'));
+
+    function decodeHtmlEntities(text) {
+        var textArea = document.createElement('textarea');
+        textArea.innerHTML = text;
+        return textArea.value;
+    }
+
+    // Tạo biểu đồ
+    var ctx = document.getElementById('monthlyRevenueChart').getContext('2d');
+    var monthlyRevenueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Doanh Thu (VNĐ)',
+                data: revenues,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Doanh Thu (VNĐ)'
+                    },
+                    // Định dạng trục Y
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' VNĐ';
+                            }
+                            return label;
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Biểu đồ Doanh Thu'
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

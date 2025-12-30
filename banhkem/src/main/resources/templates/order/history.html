@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<main class="container py-5">
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="fw-bold m-0" style="color: var(--text-brown);">
+            <i class="bi bi-clock-history me-2 text-danger"></i>Lịch Sử Mua Hàng
+        </h2>
+    </div>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="text-center py-5 shadow-sm rounded-4 bg-white border">
+        <div class="mb-4">
+            <i class="bi bi-bag-x display-1 text-muted"></i>
+        </div>
+        <h4 class="fw-bold text-muted">Bạn chưa có đơn hàng nào!</h4>
+        <p class="text-secondary mb-4">Hãy khám phá những mẫu bánh ngọt ngào của chúng tôi ngay nhé.</p>
+        <a href="/cake" class="btn btn-danger rounded-pill px-5 py-3 fw-bold">
+            MUA SẮM NGAY
+        </a>
+    </div>
+
+    <div th:if="${not #lists.isEmpty(orders)}" class="row g-4">
+        <div class="col-12" th:each="order : ${orders}">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-2">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <div>
+                        <span class="fw-bold text-muted small uppercase">Mã đơn hàng: </span>
+                        <span class="fw-bold text-primary" th:text="'#' + ${order.id}"></span>
+                        <span class="mx-2 text-muted">|</span>
+                        <span class="text-muted small" th:text="${#temporals.format(order.orderDate, 'HH:mm dd/MM/yyyy')}"></span>
+                    </div>
+                    <span th:classappend="${order.status.name() == 'PENDING' ? 'badge bg-warning text-dark' :
+                                       (order.status.name() == 'PAID' ? 'badge bg-success' : 'badge bg-secondary')}"
+                          class="px-3 py-2 rounded-pill small fw-bold"
+                          th:text="${order.status}">
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="mb-2">
+                                <i class="bi bi-geo-alt text-danger me-2"></i>
+                                <span class="text-muted small">Giao đến: </span>
+                                <span class="fw-medium" th:text="${order.shippingAddress}"></span>
+                            </div>
+                            <div class="mb-0">
+                                <i class="bi bi-cake2 text-danger me-2"></i>
+                                <span class="text-muted small">Sản phẩm: </span>
+                                <span class="fw-bold text-brown" th:each="item, iter : ${order.items}"
+                                      th:text="${item.cake.name} + ' (x' + ${item.quantity} + ')' + (iter.last ? '' : ', ')">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0 border-start-md border-light">
+                            <p class="mb-1 text-muted small fw-bold text-uppercase">Tổng thanh toán</p>
+                            <h4 class="fw-bold text-danger mb-3"
+                                th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">
+                            </h4>
+                            <a th:href="@{/order/{id}(id=${order.id})}" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold">
+                                Chi tiết đơn hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

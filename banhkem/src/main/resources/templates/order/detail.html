@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main class="container py-5">
+    <div class="mb-4">
+        <a href="/order/history" class="btn btn-outline-secondary rounded-pill">
+            <i class="bi bi-arrow-left me-2"></i>Quay lại lịch sử
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3 text-brown border-bottom pb-2">Thông tin đơn hàng</h5>
+                <p class="mb-2"><strong>Mã đơn:</strong> <span th:text="'#' + ${order.id}"></span></p>
+                <p class="mb-2"><strong>Ngày đặt:</strong> <span th:text="${#temporals.format(order.orderDate, 'HH:mm dd/MM/yyyy')}"></span></p>
+                <p class="mb-2"><strong>Trạng thái:</strong>
+                    <span class="badge bg-success" th:text="${order.status}"></span>
+                </p>
+                <hr>
+                <p class="mb-2"><strong>Người nhận:</strong> <span th:text="${order.user.fullName}"></span></p>
+                <p class="mb-2"><strong>Số điện thoại:</strong> <span th:text="${order.phone}"></span></p>
+                <p class="mb-0"><strong>Địa chỉ:</strong> <span th:text="${order.shippingAddress}"></span></p>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3">Sản phẩm</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-end pe-4">Đơn giá</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${order.items}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center py-2">
+                                <img th:src="${item.cake.image}" class="rounded-3 me-3" width="50" height="50" style="object-fit: cover;">
+                                <span class="fw-bold text-brown" th:text="${item.cake.name}"></span>
+                            </div>
+                        </td>
+                        <td class="text-center" th:text="${item.quantity}"></td>
+                        <td class="text-end pe-4 fw-bold" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                    </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                    <tr>
+                        <td colspan="2" class="ps-4 py-3 fw-bold fs-5">TỔNG CỘNG:</td>
+                        <td class="text-end pe-4 fw-bold text-danger fs-5"
+                            th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

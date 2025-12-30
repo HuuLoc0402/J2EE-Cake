@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<main>
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h3 id="formTitle" class="fw-bold" style="color: #3E2723;">Quản lý Danh mục</h3>
+        <form th:action="@{/admin/category/save}" th:object="${category}" method="post" id="categoryForm" class="row g-3 mt-2">
+            <input type="hidden" th:field="*{id}" id="catId">
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Tên danh mục <span class="text-danger">*</span></label>
+                <input type="text" th:field="*{name}" id="catName" class="form-control" placeholder="VD: Bánh Kem Bơ" required>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Mô tả ngắn</label>
+                <input type="text" th:field="*{description}" id="catDesc" class="form-control" placeholder="Nhập mô tả danh mục...">
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1 shadow" id="btnSubmit">
+                    <i class="bi bi-check-lg me-1"></i> Lưu danh mục
+                </button>
+                <button type="button" class="btn btn-secondary shadow" id="btnCancel" style="display:none;" onclick="cancelEdit()">
+                    Hủy
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+            <tr>
+                <th class="ps-4">ID</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categories}">
+                <td class="ps-4" th:text="${cat.id}"></td>
+                <td><strong th:text="${cat.name}"></strong></td>
+                <td th:text="${cat.description}" class="text-muted"></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-info rounded-pill px-3 me-2" th:onclick="'editCategory(' + ${cat.id} + ')'">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <a th:href="@{/admin/category/delete/{id}(id=${cat.id})}"
+                       class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                       onclick="return confirm('Xóa danh mục này có thể làm mất liên kết với các sản phẩm. Bạn chắc chắn?')">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script th:inline="javascript">
+        async function editCategory(id) {
+            try {
+                const response = await fetch('/admin/category/edit/' + id);
+                if (!response.ok) throw new Error('Không thể lấy dữ liệu');
+
+                const cat = await response.json();
+
+                // Đổ dữ liệu vào form
+                document.getElementById('catId').value = cat.id;
+                document.getElementById('catName').value = cat.name;
+                document.getElementById('catDesc').value = cat.description;
+
+                // Thay đổi trạng thái nút và tiêu đề
+                document.getElementById('formTitle').innerText = "Cập nhật danh mục";
+                document.getElementById('btnSubmit').innerHTML = '<i class="bi bi-save me-1"></i> Cập nhật';
+                document.getElementById('btnCancel').style.display = "block";
+
+                // Cuộn mượt lên đầu trang
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            } catch (err) {
+                alert("Lỗi: " + err.message);
+            }
+        }
+
+        function cancelEdit() {
+            document.getElementById('catId').value = "";
+            document.getElementById('categoryForm').reset();
+            document.getElementById('formTitle').innerText = "Quản lý Danh mục";
+            document.getElementById('btnSubmit').innerHTML = '<i class="bi bi-check-lg me-1"></i> Lưu danh mục';
+            document.getElementById('btnCancel').style.display = "none";
+        }
+    </script>
+</main>
+</body>
+</html>

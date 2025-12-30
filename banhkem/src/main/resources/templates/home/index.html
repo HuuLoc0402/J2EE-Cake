@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main>
+    <div class="container py-5 text-center">
+        <div class="py-5 bg-white rounded-5 shadow-sm border border-light">
+            <h1 class="display-4 fw-bold text-brown">Chào mừng đến với BanhKem Store</h1>
+            <p class="lead text-muted mb-5">Nơi mang đến những chiếc bánh kem ngọt ngào nhất cho bữa tiệc của bạn.</p>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/cake" class="btn btn-danger btn-lg rounded-pill px-5 shadow">Xem cửa hàng</a>
+                <a th:if="${#authentication.name == 'anonymousUser'}"
+                   href="/auth/register" class="btn btn-outline-danger btn-lg rounded-pill px-5">Tham gia ngay</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

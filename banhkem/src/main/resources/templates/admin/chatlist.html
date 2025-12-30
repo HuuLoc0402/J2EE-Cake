@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main class="h-100">
+    <div class="row g-0 rounded-4 shadow-lg bg-white overflow-hidden" style="height: calc(100vh - 140px); min-height: 550px;">
+        <div class="col-md-4 border-end bg-light d-flex flex-column h-100">
+            <div class="p-3 bg-white border-bottom shadow-sm d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-people-fill me-2"></i>Hỗ trợ trực tuyến</h6>
+                <span id="chatCountBadge" class="badge bg-danger rounded-pill" th:text="${openChats.size() + ' khách'}"></span>
+            </div>
+            <div id="adminChatList" class="list-group list-group-flush overflow-y-auto flex-grow-1">
+                <button th:each="chat : ${openChats}" th:if="${chat.user != null}" th:id="'card-' + ${chat.user.id}"
+                        th:onclick="window.loadHistory([[${chat.user.id}]], [[${chat.user.fullName}]])"
+                        class="list-group-item list-group-item-action p-3 chat-card border-0">
+                    <div class="d-flex align-items-center text-start">
+                        <div class="avatar-circle me-3 bg-danger text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 45px; height: 45px; flex-shrink: 0;">
+                            <span th:text="${chat.user.fullName != null ? #strings.substring(chat.user.fullName,0,1) : 'U'}"></span>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="fw-bold d-block text-dark text-truncate" th:text="${chat.user.fullName ?: 'Khách hàng'}"></span>
+                            <small class="text-success">Đang trực tuyến</small>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-8 d-flex flex-column bg-white h-100">
+            <div id="chatHeader" class="p-3 border-bottom fw-bold text-danger bg-white shadow-sm">
+                <i class="bi bi-chat-left-dots-fill me-2"></i> <span id="headerTitle">Hỗ trợ khách hàng</span>
+            </div>
+            <div id="chatBox" class="flex-grow-1 p-4 overflow-y-auto" style="background: #fdf2f4;">
+                <div id="messageArea" class="d-flex flex-column"></div>
+            </div>
+            <div class="p-3 border-top bg-white">
+                <div class="input-group shadow-sm rounded-pill border p-1 bg-light">
+                    <input type="text" id="adminInput" class="form-control border-0 ps-4 shadow-none bg-transparent" placeholder="Nhập nội dung phản hồi..." disabled onkeypress="if(event.key === 'Enter') window.sendAdminWS()">
+                    <button class="btn btn-danger px-4 rounded-pill fw-bold" id="btnSend" onclick="window.sendAdminWS()" disabled>Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        var stompAdmin = null;
+        var activeUserId = null;
+
+        // 1. KẾT NỐI VÀ NHẬN TIN
+        function connectAdmin() {
+            const socket = new SockJS('/ws-chat');
+            stompAdmin = Stomp.over(socket);
+            stompAdmin.debug = null;
+            stompAdmin.connect({}, function() {
+                console.log("Admin WebSocket connected.");
+                stompAdmin.subscribe('/topic/admin/chats', function(msg) {
+                    const data = JSON.parse(msg.body);
+                    console.log("Admin nhận được tin nhắn:", data);
+
+                    // Logic cập nhật Sidebar: Nếu có data.chat.user hoặc data.user
+                    const user = data.chat ? data.chat.user : null;
+                    if (user) {
+                        window.updateSidebar(user);
+                        // HIỂN THỊ NGAY: Nếu ID người gửi khớp với người đang chat
+                        if (activeUserId && String(activeUserId) === String(user.id)) {
+                            window.renderAdmin(data);
+                        }
+                    } else if (data.senderRole === 'ROLE_USER') {
+                        // Trường hợp đặc biệt: Nếu server trả về message đơn lẻ không bọc chat
+                        // Chúng ta vẫn render nếu admin đang mở bất kỳ khung chat nào (tạm thời)
+                        window.renderAdmin(data);
+                    }
+                });
+            }, () => setTimeout(connectAdmin, 5000));
+        }
+
+        // 2. TẢI LỊCH SỬ
+        window.loadHistory = async function(userId, fullName) {
+            activeUserId = userId;
+            document.getElementById('headerTitle').innerText = "Hỗ trợ: " + fullName;
+            document.getElementById('adminInput').disabled = false;
+            document.getElementById('btnSend').disabled = false;
+
+            document.querySelectorAll('.chat-card').forEach(c => c.classList.remove('active-chat', 'bg-warning-subtle'));
+            document.getElementById('card-' + userId)?.classList.add('active-chat');
+
+            const res = await fetch('/admin/chats/history/' + userId);
+            const messages = await res.json();
+            const area = document.getElementById('messageArea');
+            area.innerHTML = '';
+            messages.forEach(window.renderAdmin);
+            window.scrollToBottom();
+        };
+
+        // 3. GỬI TIN
+        window.sendAdminWS = function() {
+            const inp = document.getElementById('adminInput');
+            const content = inp.value.trim();
+            if (content && stompAdmin?.connected && activeUserId) {
+                const payload = {
+                    content: content,
+                    senderRole: 'ROLE_ADMIN',
+                    chat: { user: { id: parseInt(activeUserId) } }
+                };
+                stompAdmin.send("/app/chat.send", {}, JSON.stringify(payload));
+                window.renderAdmin(payload); // Hiển thị tin nhắn Admin vừa gửi
+                inp.value = '';
+            }
+        };
+
+        // 4. VẼ TIN NHẮN (QUAN TRỌNG: Sửa logic nhận diện vai trò)
+        window.renderAdmin = function(msg) {
+            const area = document.getElementById('messageArea');
+            if (!area) return;
+
+            const isMe = msg.senderRole === 'ROLE_ADMIN';
+            const html = `
+                <div class="mb-3 d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}">
+                    <div class="p-3 shadow-sm ${isMe ? 'bg-danger text-white' : 'bg-white border text-dark'}"
+                         style="max-width: 75%; border-radius: 20px; font-size: 0.95rem;">
+                        ${msg.content}
+                    </div>
+                </div>`;
+            area.insertAdjacentHTML('beforeend', html);
+            window.scrollToBottom();
+        };
+
+        window.updateSidebar = function(user) {
+            const list = document.getElementById('adminChatList');
+            const card = document.getElementById('card-' + user.id);
+            if (card) {
+                list.prepend(card);
+                if (String(activeUserId) !== String(user.id)) card.classList.add('bg-warning-subtle');
+            }
+        };
+
+        window.scrollToBottom = function() {
+            const box = document.getElementById('chatBox');
+            if (box) box.scrollTop = box.scrollHeight;
+        };
+
+        window.onload = connectAdmin;
+    </script>
+
+    <style>
+        .chat-card.active-chat { background-color: #ffe4e8 !important; border-left: 4px solid #dc3545 !important; }
+        .bg-warning-subtle { background-color: #fff3cd !important; }
+        #chatBox::-webkit-scrollbar { width: 5px; }
+        #chatBox::-webkit-scrollbar-thumb { background: #ffccd5; border-radius: 10px; }
+    </style>
+</main>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color: #3E2723;">Quản lý Sản phẩm Bánh</h2>
+        <button class="btn btn-primary px-4 rounded-pill shadow" data-bs-toggle="modal" data-bs-target="#cakeModal" onclick="prepareAdd()">
+            <i class="bi bi-plus-lg me-1"></i> Thêm bánh mới
+        </button>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+            <tr>
+                <th class="ps-4">Ảnh</th>
+                <th>Tên bánh</th>
+                <th>Danh mục</th>
+                <th>Giá bán</th>
+                <th>Tồn kho</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(cakes)}">
+                <td colspan="6" class="text-center p-5 text-muted">Chưa có sản phẩm nào.</td>
+            </tr>
+            <tr th:each="c : ${cakes}">
+                <td class="ps-4">
+                    <img th:src="${c.image}" class="rounded shadow-sm border" width="65" height="65"
+                         style="object-fit: cover;" onerror="this.src='https://placehold.co/65x65?text=Cake'">
+                </td>
+                <td><strong th:text="${c.name}"></strong></td>
+                <td><span class="badge bg-secondary px-3" th:text="${c.category != null ? c.category.name : 'N/A'}"></span></td>
+                <td class="text-danger fw-bold" th:text="${#numbers.formatDecimal(c.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                <td th:text="${c.stockQuantity}"></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-info me-2 rounded-pill px-3" th:onclick="'editCake(' + ${c.id} + ')'">
+                        <i class="bi bi-pencil"></i> Sửa
+                    </button>
+                    <a th:href="@{/admin/cakes/delete/{id}(id=${c.id})}" class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                       onclick="return confirm('Bạn chắc chắn muốn xóa?')">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="cakeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <form th:action="@{/admin/cakes/save}" th:object="${cake}" method="post" enctype="multipart/form-data" id="cakeForm" class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalTitle">Thông tin Bánh</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" th:field="*{id}" id="cakeId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tên bánh</label>
+                            <input type="text" th:field="*{name}" id="cakeName" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Danh mục</label>
+                            <select th:field="*{category.id}" id="cakeCategory" class="form-select" required>
+                                <option value="" disabled selected>-- Chọn danh mục --</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Giá (VNĐ)</label>
+                            <input type="number" th:field="*{price}" id="cakePrice" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tồn kho</label>
+                            <input type="number" th:field="*{stockQuantity}" id="cakeStock" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Chọn ảnh từ máy tính</label>
+                            <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*">
+                            <div id="imagePreview" class="mt-2"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Mô tả</label>
+                            <textarea th:field="*{description}" id="cakeDesc" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary px-4">Lưu dữ liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function prepareAdd() {
+            document.getElementById('modalTitle').innerText = "Thêm Bánh Mới";
+            document.getElementById('cakeForm').reset();
+            document.getElementById('cakeId').value = "";
+            document.getElementById('imagePreview').innerHTML = "";
+        }
+
+        async function editCake(id) {
+            try {
+                const response = await fetch('/admin/cakes/edit/' + id);
+                if (!response.ok) throw new Error('Lỗi server');
+                const cake = await response.json();
+
+                document.getElementById('modalTitle').innerText = "Chỉnh sửa: " + cake.name;
+                document.getElementById('cakeId').value = cake.id;
+                document.getElementById('cakeName').value = cake.name;
+                document.getElementById('cakeCategory').value = cake.category ? cake.category.id : "";
+                document.getElementById('cakePrice').value = cake.price;
+                document.getElementById('cakeStock').value = cake.stockQuantity;
+                document.getElementById('cakeDesc').value = cake.description;
+
+                if (cake.image) {
+                    document.getElementById('imagePreview').innerHTML = `<img src="${cake.image}" width="100" class="rounded border shadow-sm">`;
+                }
+
+                new bootstrap.Modal(document.getElementById('cakeModal')).show();
+            } catch (e) {
+                console.error(e);
+                alert("Lỗi tải dữ liệu sản phẩm!");
+            }
+        }
+    </script>
+</main>
+</body>
+</html>
