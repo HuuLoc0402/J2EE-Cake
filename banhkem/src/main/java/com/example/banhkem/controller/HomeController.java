@@ -19,4 +19,8 @@ public class HomeController {
         model.addAttribute("categories", categoryService.getAllCategories());
         return "home/index";
     }
+    @GetMapping("/contact")
+    public String contactPage() {
+        return "home/contact"; // Trả về tệp templates/home/contact.html
+    }
 }

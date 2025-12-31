@@ -1,49 +1,115 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
-<head>
-    <meta charset="UTF-8">
-</head>
 <body>
 <main class="container py-5">
+    <style>
+        /* Style cho bộ lọc và thẻ sản phẩm phong cách Bunny */
+        .filter-card { background: rgba(255, 255, 255, 0.85); border-radius: 25px; border: 2px dashed var(--primary-pink); }
+        .search-box { border-radius: 50px; border: 2px solid var(--primary-pink); background: white; }
+        .btn-bunny { background-color: var(--primary-pink); color: var(--dark-brown); font-weight: 800; border-radius: 50px; border: none; }
+        .btn-bunny:hover { background-color: #ff99aa; color: white; }
+
+        /* Hiệu ứng nhấp vào toàn bộ thẻ */
+        .card-product {
+            transition: all 0.3s ease-in-out;
+            border-radius: 20px;
+            border: 1px solid var(--soft-pink);
+            background: white;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-product:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(255, 182, 193, 0.3);
+            border-color: var(--primary-pink);
+        }
+        .card-product:hover img { transform: scale(1.05); }
+        .product-link { text-decoration: none; color: inherit; }
+    </style>
+
+    <div class="row mb-5 justify-content-center">
+        <div class="col-md-8">
+            <form th:action="@{/cake}" method="get" class="d-flex gap-2">
+                <input type="text" name="keyword" th:value="${keyword}"
+                       class="form-control search-box py-3 px-4 shadow-sm" placeholder="Tìm tên chiếc bánh bạn thích...">
+
+                <input type="hidden" name="categoryId" th:value="${categoryId}">
+                <input type="hidden" name="minPrice" th:value="${minPrice}">
+                <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+                <input type="hidden" name="sort" th:value="${sort}">
+
+                <button class="btn btn-bunny px-5 shadow-sm" type="submit">TÌM KIẾM</button>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3 mb-4 sticky-top" style="top: 20px;">
-                <h5 class="fw-bold mb-3" style="color: #3E2723;">Danh mục bánh</h5>
-                <div class="list-group list-group-flush">
-                    <a href="/cake" class="list-group-item list-group-item-action border-0 rounded mb-1 shadow-sm">
-                        <i class="bi bi-grid-fill me-2"></i>Tất cả bánh
-                    </a>
-                    <a th:each="cat : ${categories}"
-                       th:href="@{/cake(categoryId=${cat.id})}"
-                       class="list-group-item list-group-item-action border-0 rounded mb-1"
-                       th:text="${cat.name}"></a>
+            <form th:action="@{/cake}" method="get" id="filterForm">
+                <input type="hidden" name="keyword" th:value="${keyword}">
+                <div class="card filter-card shadow-sm p-4 mb-4 sticky-top" style="top: 170px;">
+                    <h5 class="fw-bold mb-3" style="color: var(--dark-brown); font-family: 'Pacifico', cursive;">Lọc Bánh</h5>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">SẮP XẾP</label>
+                        <select name="sort" class="form-select rounded-pill border-danger shadow-none" onchange="this.form.submit()">
+                            <option value="">Mặc định</option>
+                            <option value="priceAsc" th:selected="${sort == 'priceAsc'}">Giá thấp đến cao</option>
+                            <option value="priceDesc" th:selected="${sort == 'priceDesc'}">Giá cao đến thấp</option>
+                            <option value="nameAsc" th:selected="${sort == 'nameAsc'}">Tên A-Z</option>
+                            <option value="nameDesc" th:selected="${sort == 'nameDesc'}">Tên Z - A</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">DANH MỤC</label>
+                        <select name="categoryId" class="form-select rounded-pill border-danger shadow-none" onchange="this.form.submit()">
+                            <option value="">Tất cả loại bánh</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}"
+                                    th:text="${cat.name}" th:selected="${categoryId == cat.id}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">KHOẢNG GIÁ (VND)</label>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <input type="number" name="minPrice" th:value="${minPrice}" class="form-control rounded-3 border-danger" placeholder="Từ">
+                            <input type="number" name="maxPrice" th:value="${maxPrice}" class="form-control rounded-3 border-danger" placeholder="Đến">
+                        </div>
+                        <button type="submit" class="btn btn-bunny btn-sm w-100 py-2">ÁP DỤNG GIÁ</button>
+                    </div>
+
+                    <a href="/cake" class="btn btn-link btn-sm w-100 text-muted small mt-2 text-decoration-none">Xóa tất cả bộ lọc</a>
                 </div>
-            </div>
+            </form>
         </div>
 
         <div class="col-md-9">
             <div class="row g-4">
                 <div th:if="${#lists.isEmpty(cakes)}" class="col-12 text-center py-5">
-                    <img src="https://cdn-icons-png.flaticon.com/512/6598/6598519.png" width="100" class="opacity-50">
-                    <p class="mt-3 text-muted">Hiện tại chưa có sản phẩm nào trong danh mục này.</p>
+                    <div class="bg-white p-5 rounded-5 shadow-sm d-inline-block border">
+                        <p class="text-muted fw-bold mb-0"> Bunny chưa tìm thấy bánh theo yêu cầu!</p>
+                    </div>
                 </div>
 
                 <div th:each="cake : ${cakes}" class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm hover-up overflow-hidden card-product">
-                        <div class="position-relative">
-                            <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}"
-                                 class="card-img-top" style="height: 220px; object-fit: cover;"
-                                 onerror="this.src='https://placehold.co/400x300?text=Banh+Kem'">
+                    <a th:href="@{/cake/{id}(id=${cake.id})}" class="product-link">
+                        <div class="card card-product shadow-sm overflow-hidden">
+                            <div class="overflow-hidden">
+                                <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}"
+                                     class="card-img-top" style="height: 220px; object-fit: cover; transition: 0.5s;" alt="Cake Image">
+                            </div>
+                            <div class="card-body text-center p-4">
+                                <h6 class="fw-bold mb-2 text-truncate" th:text="${cake.name}" style="color: var(--dark-brown);"></h6>
+                                <p class="text-danger fw-bold fs-5 mb-3"
+                                   th:text="${#numbers.formatDecimal(cake.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></p>
+                                <div class="btn btn-bunny w-100 py-2 shadow-sm mt-auto">XEM CHI TIẾT</div>
+                            </div>
                         </div>
-                        <div class="card-body text-center">
-                            <h6 class="fw-bold mb-2" th:text="${cake.name}"></h6>
-                            <p class="text-danger fw-bold fs-5 mb-3"
-                               th:text="${#numbers.formatDecimal(cake.price != null ? cake.price : 0, 0, 'COMMA', 0, 'POINT') + 'đ'}"></p>
-                            <a th:href="@{/cake/{id}(id=${cake.id})}" class="btn btn-outline-primary w-100 rounded-pill">
-                                <i class="bi bi-cart-plus me-1"></i> Xem chi tiết
-                            </a>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>

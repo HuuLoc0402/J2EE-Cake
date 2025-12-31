@@ -5,92 +5,173 @@
 </head>
 <body>
 <main class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none text-primary">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a th:href="@{/cake}" class="text-decoration-none text-primary">Sản phẩm</a></li>
-            <li class="breadcrumb-item active" aria-current="page" th:text="${cake.name}">Tên bánh</li>
-        </ol>
-    </nav>
+    <style>
+        /* Thiết kế khung gương mờ với bo góc vừa phải */
+        .detail-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-radius: 25px !important; /* Giảm độ bo góc để không mất hình */
+            border: 2px dashed var(--primary-pink) !important;
+            box-shadow: 0 15px 35px rgba(255, 182, 193, 0.2);
+        }
 
-    <div class="card border-0 shadow-lg p-4 rounded-4 bg-white">
-        <div class="row g-5">
+        /* Container cho hình ảnh to và rõ nét */
+        .img-container {
+            border-radius: 15px; /* Bo góc nhẹ hơn cho ảnh */
+            overflow: hidden;
+            border: 5px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            height: 550px; /* Tăng chiều cao để ảnh to hơn */
+        }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Giữ nguyên tỉ lệ hình ảnh, không bị cắt */
+            background-color: #fdfdfd;
+        }
+
+        /* Tên bánh nổi bật */
+        .cake-title {
+            font-family: 'Pacifico', cursive;
+            color: var(--dark-brown);
+            font-size: 3.5rem;
+            margin-bottom: 5px;
+        }
+
+        .category-text {
+            color: #ff4d6d;
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .price-tag {
+            color: #d63384;
+            font-weight: 900;
+            font-size: 3rem;
+        }
+
+        .info-box {
+            background: rgba(255, 240, 245, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid var(--primary-pink);
+            margin-bottom: 30px;
+        }
+
+        /* Nút bấm Bunny Bakery */
+        .btn-bunny-main {
+            background: var(--primary-pink) !important;
+            color: var(--dark-brown) !important;
+            font-weight: 800;
+            border-radius: 50px;
+            padding: 18px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(255, 182, 193, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn-bunny-main:hover {
+            background: #ff99aa !important;
+            transform: scale(1.02);
+        }
+
+        .btn-bunny-outline {
+            background: white !important;
+            color: var(--dark-brown) !important;
+            border: 2px solid var(--primary-pink) !important;
+            font-weight: 800;
+            border-radius: 50px;
+            padding: 18px;
+            transition: 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-selector {
+            background: white;
+            border-radius: 50px;
+            border: 2px solid var(--soft-pink);
+            padding: 10px 20px;
+        }
+    </style>
+
+    <div class="card detail-card p-4 p-lg-5 shadow-lg">
+        <div class="row g-5 align-items-center">
             <div class="col-md-6">
-                <div class="position-relative overflow-hidden rounded-4 shadow">
+                <div class="img-container">
                     <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}"
-                         class="img-fluid w-100"
-                         style="max-height: 500px; object-fit: cover; transition: transform .3s;"
-                         onmouseover="this.style.transform='scale(1.05)'"
-                         onmouseout="this.style.transform='scale(1)'">
+                         alt="Sản phẩm Bunny Bakery">
                 </div>
             </div>
 
-            <div class="col-md-6 d-flex flex-column justify-content-center">
-                <div class="mb-2">
-                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill"
-                          th:text="${cake.category != null ? cake.category.name : 'Chưa phân loại'}">
+            <div class="col-md-6">
+                <div class="mb-4">
+                    <h1 class="cake-title" th:text="${cake.name}">Tên bánh kem</h1>
+                    <span class="category-text">
+                        <i class="bi bi-heart-fill me-1"></i>
+                        <span th:text="${cake.category != null ? cake.category.name : 'Homemade'}"></span>
                     </span>
+                    <div class="price-tag mb-3"
+                         th:text="${#numbers.formatDecimal(cake.price != null ? cake.price : 0, 0, 'COMMA', 0, 'POINT') + 'đ'}">
+                    </div>
                 </div>
 
-                <h1 class="display-5 fw-bold mb-3" style="color: #3E2723;" th:text="${cake.name}">Tên bánh kem</h1>
+                <div class="info-box">
+                    <h6 class="fw-bold text-muted small text-uppercase mb-2">Mô tả sản phẩm</h6>
+                    <p class="mb-0 text-dark fs-5" th:text="${cake.description}">Thông tin chi tiết về hương vị và nguyên liệu...</p>
+                </div>
 
-                <h2 class="text-danger fw-bold my-3"
-                    th:text="${#numbers.formatDecimal(cake.price != null ? cake.price : 0, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">
-                </h2>
-
-                <hr class="my-4 opacity-25">
-
-                <h5 class="fw-bold">Mô tả sản phẩm:</h5>
-                <p class="text-muted fs-5 lh-lg" th:text="${cake.description != null ? cake.description : 'Đang cập nhật mô tả cho sản phẩm này...'}"></p>
-
-                <div class="row g-3 my-4">
+                <div class="row g-3 mb-4 text-center">
                     <div class="col-6">
-                        <div class="p-3 bg-light rounded-3 text-center border">
-                            <i class="bi bi-box-seam d-block fs-3 mb-2 text-primary"></i>
-                            <span class="small d-block">Tình trạng</span>
-                            <strong th:id="'stock-status'" th:text="${cake.stockQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}"></strong>
+                        <div class="p-3 border rounded-4 bg-white shadow-sm">
+                            <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                            <div class="small fw-bold mt-1 text-uppercase">Tình trạng</div>
+                            <div class="fw-bold text-danger" th:text="${cake.stockQuantity > 0 ? 'CÒN HÀNG' : 'HẾT HÀNG'}"></div>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="p-3 bg-light rounded-3 text-center border">
-                            <i class="bi bi-truck d-block fs-3 mb-2 text-primary"></i>
-                            <span class="small d-block">Giao hàng</span>
-                            <strong>Miễn phí 5km</strong>
+                        <div class="p-3 border rounded-4 bg-white shadow-sm">
+                            <i class="bi bi-box-seam-fill text-primary fs-3"></i>
+                            <div class="small fw-bold mt-1 text-uppercase">Số lượng còn</div>
+                            <div class="fw-bold text-primary" th:text="${cake.stockQuantity + ' chiếc'}"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <form th:action="@{/cart/add}" method="post" id="addToCartForm">
-                        <input type="hidden" name="cakeId" th:value="${cake.id}">
+                <form th:action="@{/cart/add}" method="post" id="addToCartForm">
+                    <input type="hidden" name="cakeId" th:value="${cake.id}">
 
-                        <div class="mb-4" th:if="${cake.stockQuantity > 0}">
-                            <label for="quantity" class="form-label fw-bold">Chọn số lượng:</label>
-                            <div class="d-flex align-items-center">
-                                <div class="input-group" style="max-width: 160px;">
-                                    <button class="btn btn-outline-danger" type="button" onclick="adjustQty(-1)">-</button>
-                                    <input type="number" id="quantity" name="quantity"
-                                           class="form-control text-center shadow-none border-danger fw-bold"
-                                           value="1" min="1"
-                                           th:max="${cake.stockQuantity}" readonly>
-                                    <button class="btn btn-outline-danger" type="button" onclick="adjustQty(1)">+</button>
-                                </div>
-                                <span class="ms-3 text-muted">Kho còn: <strong th:text="${cake.stockQuantity}" id="maxStock">0</strong></span>
-                            </div>
+                    <div class="d-flex align-items-center justify-content-between mb-4 qty-selector shadow-sm" th:if="${cake.stockQuantity > 0}">
+                        <span class="fw-bold text-muted">Số lượng mua:</span>
+                        <div class="d-flex align-items-center gap-4">
+                            <span class="qty-btn" style="cursor:pointer; font-size: 1.5rem; color: #ff4d6d; font-weight: bold;" onclick="adjustQty(-1)">-</span>
+                            <input type="number" id="quantity" name="quantity"
+                                   class="form-control text-center border-0 bg-transparent fw-bold fs-4 p-0"
+                                   value="1" min="1" th:max="${cake.stockQuantity}" readonly style="width: 50px;">
+                            <span class="qty-btn" style="cursor:pointer; font-size: 1.5rem; color: #ff4d6d; font-weight: bold;" onclick="adjustQty(1)">+</span>
                         </div>
+                    </div>
 
-                        <div class="d-grid gap-3">
-                            <button type="submit" class="btn btn-danger btn-lg py-3 rounded-pill fw-bold shadow-sm"
-                                    th:disabled="${cake.stockQuantity <= 0}">
-                                <i class="bi bi-cart-plus-fill me-2"></i> THÊM VÀO GIỎ HÀNG
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-bunny-main w-100 shadow" th:disabled="${cake.stockQuantity <= 0}">
+                                <i class="bi bi-cart-plus-fill me-2"></i> THÊM GIỎ HÀNG
                             </button>
-
-                            <a th:href="@{/cake}" class="btn btn-outline-secondary btn-lg py-3 rounded-pill">
-                                <i class="bi bi-arrow-left me-2"></i> Tiếp tục mua sắm
+                        </div>
+                        <div class="col-6">
+                            <a th:href="@{/cake}" class="btn btn-bunny-outline w-100">
+                                <i class="bi bi-house-heart me-2"></i> TRANG CHỦ
                             </a>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -101,23 +182,12 @@
             const maxQuantity = [[${cake.stockQuantity}]];
             let currentVal = parseInt(qtyInput.value) || 1;
             let newVal = currentVal + amount;
-
             if (newVal >= 1 && newVal <= maxQuantity) {
                 qtyInput.value = newVal;
             } else if (newVal > maxQuantity) {
-                alert("Số lượng đạt giới hạn tồn kho!");
+                alert("Rất tiếc, Bunny chỉ còn " + maxQuantity + " chiếc thôi ạ!");
             }
         }
-
-        document.getElementById('addToCartForm').onsubmit = function() {
-            const qtyInput = document.getElementById('quantity');
-            const val = parseInt(qtyInput.value);
-            if (isNaN(val) || val < 1) {
-                alert("Vui lòng chọn ít nhất 1 sản phẩm!");
-                return false;
-            }
-            return true;
-        };
     </script>
 </main>
 </body>

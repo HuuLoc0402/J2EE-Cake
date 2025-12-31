@@ -20,7 +20,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String shippingAddress;
+
     private String phone;
 
     @ManyToOne

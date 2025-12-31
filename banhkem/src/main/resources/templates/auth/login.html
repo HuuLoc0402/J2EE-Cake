@@ -2,32 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng nhập - BanhKem</title>
+    <title>Đăng nhập - Bunny Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-pink: #FFB6C1; --dark-brown: #5D4037; --box-bg: #FFD1DC; }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: url('/images/background.png') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh; display: flex; flex-direction: column; margin: 0;
+        }
+        .auth-header { background: rgba(255, 255, 255, 0.9); height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 3px solid black; }
+        .auth-logo { height: 80px; }
+        .auth-store-name { font-family: 'Pacifico', cursive; color: var(--dark-brown); font-size: 1.4rem; }
+        .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .auth-box {
+            background: var(--box-bg);
+            border: 2px dashed var(--dark-brown);
+            border-radius: 20px;
+            padding: 40px;
+            width: 450px;
+            height: 550px;
+            display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .auth-title { text-align: center; font-weight: 800; color: var(--dark-brown); margin-bottom: 40px; font-size: 2rem; }
+        .form-label { font-weight: 700; color: var(--dark-brown); width: 130px; margin-bottom: 0; }
+        .input-group-custom { display: flex; align-items: center; margin-bottom: 25px; }
+        .form-control { border-radius: 50px; border: none; padding: 10px 20px; background: #FFF0F5; flex: 1; }
+        .btn-red { background: #dc3545; color: white; font-weight: 800; border-radius: 50px; padding: 12px; border: none; width: 100%; margin-top: auto; transition: 0.3s; }
+        .btn-red:hover { background: #bb2d3b; transform: scale(1.02); }
+        .btn-outline { background: white; color: #6c757d; font-weight: 800; border-radius: 50px; padding: 10px; border: 1px solid #6c757d; width: 100%; margin-top: 10px; text-decoration: none; text-align: center; }
+        .footer-text { text-align: center; margin-top: 15px; }
+        .footer-text a { color: var(--dark-brown); font-weight: 700; text-decoration: underline; }
+        .address-text { position: fixed; bottom: 20px; right: 40px; font-weight: 700; color: var(--dark-brown); }
+    </style>
 </head>
-<body style="background: #FFF0F5; height: 100vh; display: flex; align-items: center;">
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <div class="card p-4 shadow-lg border-0" style="border-radius: 20px;">
-                <h2 class="text-center fw-bold mb-4">Đăng Nhập 🧁</h2>
-                <form id="loginForm">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tài khoản</label>
-                        <input type="text" id="username" class="form-control rounded-pill" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Mật khẩu</label>
-                        <input type="password" id="password" class="form-control rounded-pill" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold mb-2">ĐĂNG NHẬP</button>
-                    <a href="/" class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-bold">Quay lại trang chủ</a>
-                </form>
+<body>
+<div class="auth-header">
+    <a href="/"><img th:src="@{/images/logo.png}" class="auth-logo"></a>
+    <div class="auth-store-name">Bunny Bakery</div>
+</div>
+<div class="auth-container">
+    <div class="auth-box shadow">
+        <h2 class="auth-title">Đăng nhập</h2>
+        <form id="loginForm" style="flex: 1; display: flex; flex-direction: column;">
+            <div class="input-group-custom">
+                <label class="form-label">Tài khoản</label>
+                <input type="text" id="username" class="form-control" required>
             </div>
-        </div>
+            <div class="input-group-custom">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" id="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-red">ĐĂNG NHẬP</button>
+            <a href="/" class="btn btn-outline">Quay lại trang chủ</a>
+            <div class="footer-text">
+                <a href="#">Quên mật khẩu?</a>
+            </div>
+        </form>
     </div>
 </div>
-
+<div class="address-text">Ho Chi Minh City, Viet Nam</div>
 <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -40,35 +77,13 @@
                     password: document.getElementById('password').value
                 })
             });
-
             if (response.ok) {
                 const result = await response.json();
-
-                // Lưu token vào cookie
                 document.cookie = `token=${result.token}; path=/; max-age=86400; SameSite=Lax`;
-
-                // DEBUG: Kiểm tra giá trị thực tế Server trả về (Hãy mở F12 Console để xem)
-                console.log("Server Response:", result);
-
-                // PHÂN QUYỀN ĐIỀU HƯỚNG LINH HOẠT
-                // Kiểm tra cả trường 'role' (chuỗi) hoặc 'roles' (mảng)
                 const userRole = result.role || (result.roles && result.roles[0]) || "";
-
-                if (userRole.includes('ADMIN')) {
-                    console.log("Điều hướng sang Admin...");
-                    window.location.href = '/admin/category';
-                } else {
-                    console.log("Điều hướng sang User...");
-                    window.location.href = '/cake';
-                }
-            } else {
-                const errorData = await response.json();
-                alert('Đăng nhập thất bại: ' + (errorData.message || 'Sai tài khoản hoặc mật khẩu!'));
-            }
-        } catch (error) {
-            console.error("Lỗi kết nối:", error);
-            alert("Không thể kết nối đến máy chủ!");
-        }
+                window.location.href = userRole.includes('ADMIN') ? '/admin/category' : '/cake';
+            } else { alert('Sai tài khoản hoặc mật khẩu!'); }
+        } catch (error) { alert("Không thể kết nối đến máy chủ!"); }
     });
 </script>
 </body>

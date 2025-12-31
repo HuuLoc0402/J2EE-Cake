@@ -16,4 +16,7 @@ public class CakeService {
     public List<Cake> searchCakes(String name) { return cakeRepository.findByNameContainingIgnoreCase(name); }
     public Cake saveCake(Cake cake) { return cakeRepository.save(cake); }
     public void deleteCake(Long id) { cakeRepository.deleteById(id); }
+    public List<Cake> searchCakes(Long categoryId, String keyword, Double minPrice, Double maxPrice, String sort) {
+        return cakeRepository.findByFilters(categoryId, keyword, minPrice, maxPrice, sort);
+    }
 }

@@ -35,22 +35,23 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. MỞ KHÓA TUYỆT ĐỐI các tài nguyên này để không bị 403 hệ thống
+                        // 1. Tài nguyên tĩnh và hệ thống
                         .requestMatchers("/favicon.ico", "/error", "/css/**", "/js/**", "/images/**").permitAll()
 
-                        // 2. Các trang view và api đăng ký/đăng nhập
+                        // 2. Trang chủ và Xác thực
                         .requestMatchers("/", "/auth/**", "/api/auth/**").permitAll()
 
-                        // --- PHẦN THÊM MỚI CHO CHAT (KHÔNG SỬA CODE CŨ) ---
-                        // Cho phép User lấy lịch sử của chính họ (Phải đặt trước dòng /admin/**)
-                        .requestMatchers("/admin/chats/history/current").authenticated()
-                        // Cho phép kết nối WebSocket
-                        .requestMatchers("/ws-chat/**").permitAll()
-                        // ------------------------------------------------
+                        // 3. MỞ KHÓA: Xem danh sách bánh và chi tiết bánh cho tất cả mọi người
+                        .requestMatchers("/cake/**", "/contact").permitAll()
 
-                        // 3. Bảo vệ Admin - Khớp chính xác ROLE_ADMIN trong Database của bạn
+                        // 4. WebSocket Chat (Mở cho kết nối ban đầu)
+                        .requestMatchers("/ws-chat/**").permitAll()
+                        .requestMatchers("/admin/chats/history/current").authenticated()
+
+                        // 5. Quản trị viên
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
+                        // 6. TẤT CẢ CÁC TRANG CÒN LẠI (bao gồm /cart): Phải đăng nhập
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

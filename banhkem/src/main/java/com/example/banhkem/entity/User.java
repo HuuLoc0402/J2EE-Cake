@@ -19,9 +19,12 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String fullName;
     private String email;
     private String phone;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String address;
 
     // CHÚ Ý: Chỉ sử dụng MERGE và REFRESH, không dùng ALL hoặc PERSIST cho Roles

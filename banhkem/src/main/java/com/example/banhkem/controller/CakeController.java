@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/cake")
 public class CakeController {
@@ -23,15 +25,27 @@ public class CakeController {
 
     // 1. Hiển thị danh sách bánh kem (Có lọc theo danh mục)
     @GetMapping
-    public String list(Model model, @RequestParam(required = false) Long categoryId) {
-        if (categoryId != null) {
-            model.addAttribute("cakes", cakeService.getCakesByCategory(categoryId));
-        } else {
-            model.addAttribute("cakes", cakeService.getAllCakes());
-        }
+    public String list(Model model,
+                       @RequestParam(required = false) Long categoryId,
+                       @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) Double minPrice,
+                       @RequestParam(required = false) Double maxPrice,
+                       @RequestParam(required = false) String sort) {
+
+        List<Cake> cakes = cakeService.searchCakes(categoryId, keyword, minPrice, maxPrice, sort);
+        model.addAttribute("cakes", cakes);
         model.addAttribute("categories", categoryService.getAllCategories());
+
+        // Giữ trạng thái bộ lọc cho giao diện
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("sort", sort);
+
         return "cake/list";
     }
+
 
     // 2. HIỂN THỊ CHI TIẾT SẢN PHẨM (Mapping cho file detail.html)
     @GetMapping("/{id}")
@@ -47,4 +61,5 @@ public class CakeController {
         // Trả về file: src/main/resources/templates/cake/detail.html
         return "cake/detail";
     }
+
 }

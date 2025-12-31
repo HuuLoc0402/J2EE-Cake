@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<body>
+<main class="container py-5">
+    <style>
+        .contact-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 2px dashed var(--primary-pink);
+            padding: 3rem;
+            margin-top: 50px;
+        }
+        .contact-icon {
+            font-size: 3rem;
+            color: var(--primary-pink);
+            margin-bottom: 1.5rem;
+        }
+        .contact-title {
+            font-family: 'Pacifico', cursive;
+            color: var(--dark-brown);
+            margin-bottom: 2rem;
+        }
+        .info-text {
+            color: var(--dark-brown);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+    </style>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10 text-center contact-card shadow-lg">
+            <h1 class="contact-title display-4">Liên hệ với Bunny Bakery</h1>
+            <p class="lead mb-5 fw-bold" style="color: #6D4C41;">
+                Chúng tớ luôn sẵn sàng lắng nghe những ý kiến đóng góp <br> và yêu cầu đặt bánh từ bạn!
+            </p>
+
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 bg-white shadow-sm h-100">
+                        <i class="bi bi-telephone-heart contact-icon"></i>
+                        <h5 class="fw-bold">HOTLINE</h5>
+                        <p class="info-text">0123 456 789</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 bg-white shadow-sm h-100">
+                        <i class="bi bi-envelope-paper-heart contact-icon"></i>
+                        <h5 class="fw-bold">EMAIL</h5>
+                        <p class="info-text">hello@bunnybakery.com</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 bg-white shadow-sm h-100">
+                        <i class="bi bi-geo-alt-fill contact-icon"></i>
+                        <h5 class="fw-bold">ĐỊA CHỈ</h5>
+                        <p class="info-text">Ho Chi Minh City, Viet Nam</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-top border-light">
+                <p class="mb-0 fw-bold" style="color: var(--dark-brown);">
+                    Giờ mở cửa: 08:00 AM - 09:00 PM (Hàng ngày)
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

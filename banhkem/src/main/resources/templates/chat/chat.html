@@ -2,10 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
 <body>
 <main class="container py-4">
+    <style>
+        .back-home-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .back-home-btn:hover {
+            color: var(--soft-pink);
+            transform: translateY(-50%) scale(1.1);
+        }
+    </style>
+
     <div class="card border-0 shadow-lg rounded-4 overflow-hidden mx-auto"
          style="max-width: 650px; height: calc(100vh - 150px); min-height: 500px; display: flex; flex-direction: column;">
 
-        <div class="card-header bg-danger text-white py-3 text-center" style="flex-shrink: 0;">
+        <div class="card-header bg-danger text-white py-3 text-center position-relative" style="flex-shrink: 0;">
+            <a href="/" class="back-home-btn" title="Quay lại trang chủ">
+                <i class="bi bi-arrow-left-circle-fill"></i>
+            </a>
+
             <h5 class="mb-0 fw-bold"><i class="bi bi-chat-dots-fill me-2"></i>Hỗ trợ trực tuyến</h5>
         </div>
 
@@ -35,15 +56,11 @@
 
     <script th:inline="javascript">
         console.log("--- INITIALIZING USER CHAT SCRIPT ---");
-
         window.stompUser = null;
 
-        // Định nghĩa hàm Global gắn vào window để onclick luôn tìm thấy
         window.sendUserWS = function() {
-            console.log("Button clicked or Enter pressed");
             const inp = document.getElementById('userInp');
             const content = inp ? inp.value.trim() : "";
-
             if (content && window.stompUser && window.stompUser.connected) {
                 const m = {
                     content: content,
@@ -54,7 +71,6 @@
                 window.renderUserMsg(m);
                 inp.value = '';
             } else {
-                console.error("Connection not ready or empty content");
                 if(!window.stompUser || !window.stompUser.connected) connectUserWS();
             }
         };
@@ -81,7 +97,6 @@
 
         function connectUserWS() {
             if (typeof SockJS === 'undefined') {
-                console.error("SockJS library not loaded!");
                 setTimeout(connectUserWS, 1000);
                 return;
             }
@@ -89,17 +104,14 @@
             window.stompUser = Stomp.over(socket);
             window.stompUser.debug = null;
             window.stompUser.connect({}, function () {
-                console.log("USER WEBSOCKET CONNECTED SUCCESS");
                 window.stompUser.subscribe('/user/queue/messages', function (msg) {
                     window.renderUserMsg(JSON.parse(msg.body));
                 });
             }, function(err) {
-                console.error("Connection error:", err);
                 setTimeout(connectUserWS, 5000);
             });
         }
 
-        // Tự khởi động
         connectUserWS();
         setTimeout(window.scrollChat, 500);
     </script>

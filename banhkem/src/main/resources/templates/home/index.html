@@ -2,15 +2,55 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
 <body>
 <main>
-    <div class="container py-5 text-center">
-        <div class="py-5 bg-white rounded-5 shadow-sm border border-light">
-            <h1 class="display-4 fw-bold text-brown">Chào mừng đến với BanhKem Store</h1>
-            <p class="lead text-muted mb-5">Nơi mang đến những chiếc bánh kem ngọt ngào nhất cho bữa tiệc của bạn.</p>
+    <style>
+        .home-hero {
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-glass-box {
+            background: rgba(255, 255, 255, 0.65);
+            padding: 4rem;
+            border-radius: 60px;
+            border: 3px dashed var(--primary-pink);
+            text-align: center;
+            backdrop-filter: blur(5px);
+            max-width: 850px;
+        }
+        .btn-pink-cute {
+            background-color: var(--primary-pink) !important;
+            color: var(--dark-brown) !important;
+            font-weight: 800;
+            padding: 18px 45px;
+            border: none;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(255, 182, 193, 0.5);
+            transition: 0.3s;
+        }
+        .btn-pink-cute:hover {
+            background-color: #ff99aa !important;
+            transform: translateY(-5px);
+            color: white !important;
+        }
+    </style>
 
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/cake" class="btn btn-danger btn-lg rounded-pill px-5 shadow">Xem cửa hàng</a>
+    <div class="home-hero container">
+        <div class="hero-glass-box shadow-lg">
+            <h2 class="fw-bold mb-4" style="color: var(--dark-brown); letter-spacing: 5px; font-size: 2.5rem;">HOMEMADE SWEET</h2>
+            <p class="fs-4 mb-5 fw-bold" style="color: var(--dark-brown);">
+                Những chiếc bánh ngọt ngào nhất dành tặng cho bạn.<br>
+                Hãy cùng Bunny Bakery tạo nên những kỉ niệm đáng nhớ!
+            </p>
+
+            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                <a href="/cake" class="btn btn-pink-cute rounded-pill">XEM CỬA HÀNG</a>
+
                 <a th:if="${#authentication.name == 'anonymousUser'}"
-                   href="/auth/register" class="btn btn-outline-danger btn-lg rounded-pill px-5">Tham gia ngay</a>
+                   href="/auth/register" class="btn btn-pink-cute rounded-pill">ĐĂNG KÝ THÀNH VIÊN NGAY</a>
+
+                <a th:unless="${#authentication.name == 'anonymousUser'}"
+                   href="/order/history" class="btn btn-pink-cute rounded-pill">ĐƠN HÀNG CỦA TÔI</a>
             </div>
         </div>
     </div>
