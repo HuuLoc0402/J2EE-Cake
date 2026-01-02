@@ -3,7 +3,7 @@
 <body>
 <main class="container py-4">
     <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
-        <h2 style="color: #3E2723;"><i class="bi bi-bar-chart-line-fill me-2"></i>Thống Kê Kinh Doanh <span th:text="${currentYear}"></span></h2>
+        <h2 style="color: #3E2723;"><i class="bi bi-bar-chart-line-fill me-2"></i>Thống Kê Kinh Doanh Năm <span th:text="${currentYear}"></span></h2>
 
         <form th:action="@{/admin/dashboard}" method="get" class="d-flex gap-2">
             <div class="input-group shadow-sm">
@@ -17,15 +17,14 @@
     <div class="row g-4 mb-5">
         <div class="col-md-6">
             <div class="card p-4 text-center shadow-sm border-0 bg-white rounded-4" style="border-left: 5px solid #dc3545 !important;">
-                <h6 class="text-muted small text-uppercase fw-bold">Tổng Doanh Thu Năm</h6>
-                <h2 class="fw-bold text-danger mb-0"
-                    th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></h2>
+                <h6 class="text-muted small text-uppercase fw-bold">Tổng Doanh Thu Năm <span th:text="${currentYear}"></span></h6>
+                <h2 class="fw-bold text-danger mb-0" id="displayTotalRevenue">0 ₫</h2>
             </div>
         </div>
         <div class="col-md-6">
             <div class="card p-4 text-center shadow-sm border-0 bg-white rounded-4" style="border-left: 5px solid #0d6efd !important;">
-                <h6 class="text-muted small text-uppercase fw-bold">Tổng Sản Lượng Bán</h6>
-                <h2 class="fw-bold text-primary mb-0" th:text="${totalCakesSold + ' cái'}"></h2>
+                <h6 class="text-muted small text-uppercase fw-bold">Tổng Sản Lượng Năm <span th:text="${currentYear}"></span></h6>
+                <h2 class="fw-bold text-primary mb-0" id="displayTotalQuantity">0 cái</h2>
             </div>
         </div>
     </div>
@@ -58,7 +57,15 @@
         const cakeCountData = [[${cakeCountData}]];
         const labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
 
-        // 1. Cấu hình Biểu đồ Doanh Thu (Bar Chart)
+        // --- TỰ ĐỘNG TÍNH TOÁN LẠI TỔNG THEO DỮ LIỆU BIỂU ĐỒ ---
+        const totalRev = revenueData.reduce((a, b) => a + b, 0);
+        const totalQty = cakeCountData.reduce((a, b) => a + b, 0);
+
+        // Cập nhật con số lên màn hình (Format định dạng tiền Việt)
+        document.getElementById('displayTotalRevenue').innerText = new Intl.NumberFormat('vi-VN').format(totalRev) + ' ₫';
+        document.getElementById('displayTotalQuantity').innerText = totalQty + ' cái';
+
+        // 1. Cấu hình Biểu đồ Doanh Thu
         new Chart(document.getElementById('revenueChart'), {
             type: 'bar',
             data: {
@@ -94,7 +101,7 @@
             }
         });
 
-        // 2. Cấu hình Biểu đồ Số Lượng (Line Chart)
+        // 2. Cấu hình Biểu đồ Số Lượng
         new Chart(document.getElementById('quantityChart'), {
             type: 'line',
             data: {

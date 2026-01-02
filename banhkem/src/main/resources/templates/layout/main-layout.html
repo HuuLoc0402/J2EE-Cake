@@ -2,14 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
 <head>
     <meta charset="UTF-8">
-    <title>Bunny Bakery</title>
+    <title>Bunny Bakery - Tiệm Bánh Ngọt Ngào</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Pacifico&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Pacifico&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-
     <style>
         :root { --primary-pink: #FFB6C1; --dark-brown: #5D4037; --soft-pink: #FFD1DC; }
 
@@ -21,71 +19,90 @@
             background-size: cover;
         }
 
+        /* NAVBAR ĐẦY ĐỦ LOGO VÀ LINKS */
         .navbar {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--soft-pink);
-            height: 150px;
+            border-bottom: 4px solid var(--soft-pink);
+            height: 110px;
             position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1030;
+            top: 0; width: 100%; z-index: 1050;
+            display: flex; align-items: center;
         }
 
-        .nav-container { display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 0 50px; }
-        .nav-side-links { width: 35%; display: flex; gap: 40px; align-items: center; }
-        .logo-center { width: 30%; display: flex; flex-direction: column; align-items: center; }
-        .main-logo { height: 90px; width: auto; }
-        .store-name-text { font-family: 'Pacifico', cursive; color: var(--dark-brown); font-size: 1.5rem; line-height: 1; }
+        .nav-container { display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 0 40px; }
+        .nav-side-links { width: 40%; display: flex; justify-content: space-evenly; align-items: center; }
+        .logo-center { width: 20%; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+        .logo-wrapper {
+            position: absolute; top: -55px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1060;
+        }
+        .logo-wrapper:hover { transform: scale(1.15); }
+        .main-logo { height: 190px; width: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15)); }
 
         .nav-link-custom {
             color: var(--dark-brown) !important;
-            font-weight: 800;
-            text-decoration: none;
+            font-weight: 900;
             text-transform: uppercase;
-            font-size: 1.1rem;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
         }
-        .nav-link-custom:hover { color: var(--primary-pink) !important; }
+        .nav-link-custom:hover { color: var(--primary-pink) !important; transform: scale(1.1); }
 
-        .app-container { display: flex; margin-top: 150px; min-height: calc(100vh - 150px); }
+        .app-container { display: flex; padding-top: 110px; min-height: 100vh; }
 
+        /* SIDEBAR ADMIN CỐ ĐỊNH VỚI ĐẦY ĐỦ DANH MỤC QUẢN LÝ (CRUD) */
         #admin-sidebar {
-            width: 260px;
-            background: rgba(62, 39, 35, 0.9);
-            color: white;
+            width: 280px;
+            background: rgba(62, 39, 35, 0.98);
             position: fixed;
-            top: 150px;
-            left: 0;
-            bottom: 0;
-            z-index: 1020;
-            border-right: 2px solid var(--soft-pink);
+            top: 110px; left: 0; bottom: 0;
+            z-index: 1000;
+            border-right: 4px solid var(--primary-pink);
+            overflow-y: auto;
+            padding-bottom: 50px;
         }
 
-        .main-content { flex: 1; padding: 30px; margin-left: 0; transition: 0.3s; }
-        .is-admin-content { margin-left: 260px; }
-
-        /* KHÔI PHỤC STYLE CHATBOX */
-        #chat-circle {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            z-index: 2000;
-            cursor: pointer;
-            background-color: var(--primary-pink);
+        .admin-nav-link {
+            padding: 15px 25px;
+            color: white !important;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
             transition: 0.3s;
-            border: none;
+            border-radius: 15px;
+            margin: 5px 15px;
         }
-        #chat-circle:hover { transform: scale(1.1); background-color: #ff99aa; }
-        #chat-circle i { color: white; font-size: 2rem; }
+        .admin-nav-link:hover { background: var(--primary-pink); color: var(--dark-brown) !important; }
+        .admin-nav-link i { margin-right: 15px; font-size: 1.3rem; color: var(--primary-pink); }
+        .admin-nav-link:hover i { color: var(--dark-brown); }
 
-        .dropdown-menu { border-radius: 15px; border: 2px solid var(--soft-pink); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .main-content { flex: 1; padding: 40px; width: 100%; transition: 0.3s; }
+        .is-admin-content { margin-left: 280px; }
+
+        /* NÚT CHAT BONG BÓNG CHO KHÁCH */
+        #chat-circle {
+            position: fixed; bottom: 40px; right: 40px;
+            width: 85px; height: 85px; border-radius: 50%;
+            background-color: var(--primary-pink);
+            color: white; display: flex; align-items: center; justify-content: center;
+            z-index: 1040; box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6);
+            text-decoration: none; transition: 0.3s;
+        }
+        #chat-circle:hover { transform: scale(1.1) rotate(10deg); background-color: #ff99aa; }
+        #chat-circle i { font-size: 3.5rem; }
+
+        /* ĐỊNH DẠNG DROPDOWN NGƯỜI DÙNG */
+        .dropdown-menu { border-radius: 25px; padding: 15px; border: 3px solid var(--soft-pink) !important; }
+        .dropdown-item { border-radius: 15px; padding: 12px 20px !important; font-weight: 700; font-size: 1.1rem; }
+        .dropdown-item:hover { background-color: var(--soft-pink); color: var(--dark-brown); }
     </style>
 </head>
 <body>
@@ -93,39 +110,45 @@
 <nav class="navbar navbar-expand-lg">
     <div class="nav-container">
         <div class="nav-side-links">
-            <a class="nav-link-custom" href="/cake">MENU</a>
-            <a class="nav-link-custom" href="/contact">CONTACT</a>
+            <a class="nav-link-custom" href="/cake">BÁNH</a>
+            <a class="nav-link-custom" href="/contact">LIÊN HỆ</a>
         </div>
 
         <div class="logo-center">
-            <a href="/"><img th:src="@{/images/logo.png}" class="main-logo" alt="Logo"></a>
-            <div class="store-name-text">Bunny Bakery</div>
+            <div class="logo-wrapper">
+                <a href="/"><img th:src="@{/images/logo.png}" class="main-logo" alt="Logo"></a>
+            </div>
         </div>
 
-        <div class="nav-side-links justify-content-end">
+        <div class="nav-side-links">
             <a th:if="${!#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}"
                th:href="${#authentication.name == 'anonymousUser'} ? '/auth/login' : '/cart'" class="nav-link-custom">
-                GIỎ HÀNG <i class="bi bi-cart3"></i>
+                GIỎ HÀNG
             </a>
+
             <div class="dropdown">
                 <button class="btn nav-link-custom dropdown-toggle border-0" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle"></i>
-                    <span th:text="${#authentication.name == 'anonymousUser' ? 'SIGN IN' : #authentication.name}">User</span>
+                    <span th:text="${#authentication.name == 'anonymousUser' ? 'ĐĂNG NHẬP' : #authentication.name}">USER</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 280px;">
                     <div th:if="${#authentication.name == 'anonymousUser'}">
-                        <li><a class="dropdown-item fw-bold" href="/auth/login">Đăng nhập</a></li>
-                        <li><a class="dropdown-item fw-bold" href="/auth/register">Đăng ký</a></li>
+                        <li><a class="dropdown-item" href="/auth/login"><i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập</a></li>
+                        <li><a class="dropdown-item" href="/auth/register"><i class="bi bi-person-plus me-2"></i>Đăng ký</a></li>
                     </div>
+
                     <div th:unless="${#authentication.name == 'anonymousUser'}">
+                        <li><a class="dropdown-item fw-bold text-primary" href="/profile"><i class="bi bi-person-bounding-box me-2"></i>Hồ sơ cá nhân</a></li>
+
                         <li th:if="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
-                            <a class="dropdown-item" href="/admin/dashboard">Quản trị cửa hàng</a>
+                            <a class="dropdown-item" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i>Quản trị hệ thống</a>
                         </li>
+
                         <li th:if="${!#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
-                            <a class="dropdown-item" href="/order/history">Lịch sử mua hàng</a>
+                            <a class="dropdown-item" href="/order/history"><i class="bi bi-clock-history me-2"></i>Lịch sử mua hàng</a>
                         </li>
+
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="handleLogout()">Đăng xuất</a></li>
+                        <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="handleLogout()"><i class="bi bi-power me-2"></i>Đăng xuất</a></li>
                     </div>
                 </ul>
             </div>
@@ -134,39 +157,33 @@
 </nav>
 
 <div class="app-container">
-    <nav id="admin-sidebar" th:if="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
-        <div class="p-3">
-            <h6 class="text-uppercase fw-bold text-muted small mb-3">Hệ thống Admin</h6>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link py-3" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i> Thống kê</a></li>
-                <li class="nav-item"><a class="nav-link py-3" href="/admin/chats"><i class="bi bi-chat-dots me-2"></i> Hỗ trợ khách</a></li>
-                <li class="nav-item"><a class="nav-link py-3" href="/admin/category"><i class="bi bi-tags me-2"></i> Danh mục</a></li>
-                <li class="nav-item"><a class="nav-link py-3" href="/admin/cakes"><i class="bi bi-cake2 me-2"></i> Bánh kem</a></li>
-                <li class="nav-item"><a class="nav-link py-3" href="/admin/users"><i class="bi bi-people me-2"></i> Khách hàng</a></li>
-                <li class="nav-item"><a class="nav-link py-3" href="/admin/orders"><i class="bi bi-bag-check me-2"></i> Đơn hàng</a></li>
-            </ul>
+    <aside id="admin-sidebar" th:if="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
+        <div class="py-4">
+            <h6 class="text-uppercase fw-bold text-white fs-4 mb-4 px-4 border-bottom pb-3" style="letter-spacing: 2px;">Bunny Admin</h6>
+            <nav class="nav flex-column">
+                <a class="admin-nav-link" href="/admin/dashboard"><i class="bi bi-graph-up"></i> Thống kê</a>
+                <a class="admin-nav-link" href="/admin/cakes"><i class="bi bi-cake2"></i> Quản lý Bánh</a>
+                <a class="admin-nav-link" href="/admin/category"><i class="bi bi-tags"></i> Loại bánh</a>
+                <a class="admin-nav-link" href="/admin/orders"><i class="bi bi-cart-check"></i> Đơn hàng</a>
+                <a class="admin-nav-link" href="/admin/users"><i class="bi bi-people"></i> Người dùng</a>
+                <a class="admin-nav-link" href="/admin/chats"><i class="bi bi-chat-dots"></i> Hỗ trợ Chat</a>
+            </nav>
         </div>
-    </nav>
+    </aside>
 
-    <div class="main-content" th:classappend="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? 'is-admin-content' : ''">
+    <main class="main-content" th:classappend="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? 'is-admin-content' : ''">
         <div th:replace="${content}"></div>
-    </div>
+    </main>
 </div>
 
 <div th:if="${#authentication.name != 'anonymousUser' and !#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}">
-    <div id="chat-circle" class="shadow-lg">
+    <a href="/chat" id="chat-circle">
         <i class="bi bi-chat-heart-fill"></i>
-    </div>
+    </a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
-    // Khôi phục logic click mở trang Chat
-    const cCircle = document.getElementById('chat-circle');
-    if (cCircle) {
-        cCircle.onclick = () => { window.location.href = '/chat'; };
-    }
-
     function handleLogout() {
         document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
         window.location.href = '/auth/login';

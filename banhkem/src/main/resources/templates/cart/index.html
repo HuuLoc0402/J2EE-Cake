@@ -4,63 +4,136 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<main class="container py-5">
-    <div class="d-flex align-items-center mb-4">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-circle me-3">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        <h2 class="fw-bold m-0" style="color: var(--text-brown);">🛒 Giỏ Hàng Của Bạn</h2>
+<main class="container-fluid py-5 px-lg-5"> <style>
+    /* Đồng nhất Card với các trang trước */
+    .cart-main-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 40px !important;
+        border: 2px solid var(--soft-pink) !important;
+        overflow: hidden;
+    }
+
+    /* Header của bảng */
+    .table-head-bunny {
+        background: var(--soft-pink) !important;
+        height: 80px;
+        vertical-align: middle;
+    }
+
+    .table-head-bunny th {
+        color: var(--dark-brown) !important;
+        font-weight: 900 !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 1.2rem;
+    }
+
+    /* Ô nhập số lượng kiểu con nhộng to rõ */
+    .qty-input-group {
+        width: 180px;
+        height: 65px;
+        background: white;
+        border-radius: 50px;
+        border: 3px solid var(--primary-pink);
+        overflow: hidden;
+    }
+
+    .btn-qty-control {
+        background: transparent;
+        border: none;
+        color: var(--primary-pink);
+        font-size: 2rem;
+        font-weight: 900;
+        width: 55px;
+        transition: 0.3s;
+    }
+
+    .btn-qty-control:hover {
+        background: var(--soft-pink);
+        color: var(--dark-brown);
+    }
+
+    /* Hóa đơn phía bên phải */
+    .summary-card {
+        background: white;
+        border-radius: 40px;
+        border: 4px dashed var(--primary-pink) !important;
+        padding: 3.5rem !important;
+    }
+
+    .btn-order-huge {
+        background: var(--primary-pink) !important;
+        color: var(--dark-brown) !important;
+        font-weight: 900;
+        font-size: 1.8rem;
+        border-radius: 60px;
+        padding: 25px;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .btn-order-huge:hover {
+        background: #ff99aa !important;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(255, 182, 193, 0.5);
+    }
+</style>
+
+    <div class="mb-5 ms-lg-4">
+        <h1 class="fw-bold m-0" style="color: var(--dark-brown); font-family: 'Pacifico', cursive; font-size: 4rem;">
+            Giỏ hàng của bạn
+        </h1>
     </div>
 
-    <div class="row g-4" th:if="${cartItems != null and not #lists.isEmpty(cartItems)}">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="row g-5" th:if="${cartItems != null and not #lists.isEmpty(cartItems)}">
+        <div class="col-xl-8">
+            <div class="card cart-main-card shadow-lg border-0">
                 <table class="table align-middle mb-0">
-                    <thead class="table-light">
+                    <thead class="table-head-bunny">
                     <tr>
-                        <th class="ps-4 py-3">Sản phẩm</th>
-                        <th>Giá</th>
-                        <th style="width: 150px;">Số lượng</th>
-                        <th>Tổng</th>
-                        <th class="text-center">Xóa</th>
+                        <th class="ps-5">Bánh</th>
+                        <th class="text-center">Giá</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-center">Tổng</th>
+                        <th class="pe-5 text-center">Xóa</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="item : ${cartItems}">
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center py-2">
+                    <tr th:each="item : ${cartItems}" style="border-bottom: 2px solid #fdf2f4;">
+                        <td class="ps-5 py-5">
+                            <div class="d-flex align-items-center">
                                 <img th:src="${item.cake.image != null ? item.cake.image : '/images/default-cake.jpg'}"
-                                     class="rounded-3 me-3 shadow-sm" width="70" height="70" style="object-fit: cover;">
+                                     class="rounded-4 me-4 shadow-sm" width="150" height="150"
+                                     style="object-fit: cover; border: 4px solid var(--soft-pink);">
                                 <div>
-                                    <span class="fw-bold d-block text-brown" th:text="${item.cake.name}"></span>
-                                    <small class="text-muted" th:text="${item.cake.category != null ? item.cake.category.name : 'Bánh kem'}"></small>
+                                    <span class="fw-bold d-block mb-2" style="font-size: 2rem; color: var(--dark-brown);" th:text="${item.cake.name}"></span>
+                                    <span class="badge px-4 py-2" style="background: var(--soft-pink); color: var(--dark-brown); font-size: 1rem; border-radius: 50px;"
+                                          th:text="${item.cake.category != null ? item.cake.category.name : 'Homemade'}"></span>
                                 </div>
                             </div>
                         </td>
-                        <td th:text="${#numbers.formatDecimal(item.cake.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
-                        <td>
-                            <form th:action="@{/cart/update}" method="post" class="d-flex align-items-center">
+                        <td class="fs-3 fw-bold text-center" style="color: var(--dark-brown);"
+                            th:text="${#numbers.formatDecimal(item.cake.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                        <td class="text-center">
+                            <form th:action="@{/cart/update}" method="post" class="d-flex justify-content-center">
                                 <input type="hidden" name="itemId" th:value="${item.id}">
-                                <div class="input-group input-group-sm">
-                                    <button class="btn btn-outline-danger" type="button"
-                                            th:onclick="'adjustCartQty(' + ${item.id} + ', -1)'">-</button>
-
+                                <div class="qty-input-group d-flex align-items-center shadow-sm">
+                                    <button class="btn-qty-control" type="button" th:onclick="'adjustCartQty(' + ${item.id} + ', -1)'"> - </button>
                                     <input type="number" th:id="'qty-' + ${item.id}" name="quantity"
                                            th:value="${item.quantity}"
-                                           class="form-control text-center border-danger fw-bold"
+                                           class="form-control text-center border-0 fw-bold fs-3 bg-transparent p-0"
                                            readonly th:max="${item.cake.stockQuantity}">
-
-                                    <button class="btn btn-outline-danger" type="button"
-                                            th:onclick="'adjustCartQty(' + ${item.id} + ', 1)'">+</button>
+                                    <button class="btn-qty-control" type="button" th:onclick="'adjustCartQty(' + ${item.id} + ', 1)'"> + </button>
                                 </div>
                             </form>
                         </td>
-                        <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(item.cake.price * item.quantity, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
-                        <td class="text-center">
+                        <td class="fw-bold text-center" style="font-size: 2.2rem; color: #d63384;"
+                            th:text="${#numbers.formatDecimal(item.cake.price * item.quantity, 0, 'COMMA', 0, 'POINT') + 'đ'}"></td>
+                        <td class="pe-5 text-center">
                             <a th:href="@{/cart/remove/{id}(id=${item.id})}"
-                               class="btn btn-sm btn-outline-danger rounded-circle"
-                               onclick="return confirm('Xóa sản phẩm này khỏi giỏ hàng?')">
-                                <i class="bi bi-trash3"></i>
+                               class="text-danger fs-1 text-decoration-none"
+                               onclick="return confirm('Xóa chiếc bánh này khỏi giỏ hàng?')">
+                                <i class="bi bi-trash3-fill"></i>
                             </a>
                         </td>
                     </tr>
@@ -69,42 +142,42 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white sticky-top" style="top: 100px;">
-                <h5 class="fw-bold mb-4 border-bottom pb-2">Hóa đơn chi tiết</h5>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-muted">Tạm tính:</span>
-                    <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
-                </div>
-                <div class="d-flex justify-content-between mb-4 fs-4 fw-bold text-brown border-top pt-3">
-                    <span>Tổng cộng:</span>
-                    <span class="text-danger" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+        <div class="col-xl-4">
+            <div class="card summary-card shadow-lg sticky-top border-0" style="top: 150px;">
+                <h2 class="fw-bold mb-5 text-center" style="color: var(--dark-brown); font-family: 'Pacifico', cursive; font-size: 3rem;">Hóa Đơn</h2>
+
+                <div class="d-flex justify-content-between mb-4 fs-3">
+                    <span class="text-muted fw-bold">Tạm tính:</span>
+                    <span class="fw-bold" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
                 </div>
 
-                <div class="d-grid gap-2">
-                    <a href="/order/checkout" class="btn btn-danger btn-lg rounded-pill fw-bold shadow py-3">
-                        <i class="bi bi-wallet2 me-2"></i> TIẾN HÀNH ĐẶT HÀNG
+                <div class="d-flex justify-content-between mb-5 fs-1 fw-bold border-top pt-4">
+                    <span style="color: var(--dark-brown);">Tổng:</span>
+                    <span style="color: #d63384;" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                </div>
+
+                <div class="d-grid gap-4">
+                    <a href="/order/checkout" class="btn btn-order-huge shadow-lg text-uppercase">
+                        Đặt hàng ngay
                     </a>
-                    <a href="/cake" class="btn btn-outline-secondary rounded-pill py-2">
-                        Tiếp tục chọn bánh
+                    <a href="/cake" class="btn btn-outline-secondary rounded-pill py-3 fw-bold fs-4 border-2">
+                        Quay lại chọn bánh
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div th:if="${cartItems == null or #lists.isEmpty(cartItems)}" class="text-center py-5 shadow-sm rounded-4 bg-white border">
-        <div class="mb-4">
-            <i class="bi bi-cart-x display-1 text-muted"></i>
-        </div>
-        <h3 class="fw-bold text-muted">Giỏ hàng của bạn đang trống!</h3>
-        <p class="text-secondary mb-4">Có vẻ như bạn chưa chọn được chiếc bánh ưng ý nào.</p>
-        <a href="/cake" class="btn btn-danger rounded-pill px-5 py-3 fw-bold">
-            XEM DANH SÁCH BÁNH NGAY
+    <div th:if="${cartItems == null or #lists.isEmpty(cartItems)}"
+         class="text-center py-5 shadow-lg rounded-5 bg-white border-0" style="margin-top: 50px;">
+        <h1 class="fw-bold text-muted mb-4" style="font-size: 5rem;">Giỏ hàng trống 🐰</h1>
+        <p class="fs-2 text-secondary mb-5">Bunny Bakery đang đợi bạn chọn những chiếc bánh thật ngon!</p>
+        <a href="/cake" class="btn btn-order-huge rounded-pill px-5 py-4 fs-2 shadow-lg">
+            ĐI ĐẾN CỬA HÀNG NGAY
         </a>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         function adjustCartQty(itemId, amount) {
             const qtyInput = document.getElementById('qty-' + itemId);
             if (!qtyInput) return;
@@ -115,10 +188,9 @@
 
             if (newVal >= 1 && newVal <= max) {
                 qtyInput.value = newVal;
-                // Tự động gửi form để cập nhật số lượng và tổng tiền trên server
                 qtyInput.form.submit();
             } else if (newVal > max) {
-                alert("Số lượng bánh trong kho đã đạt giới hạn!");
+                alert("Rất tiếc, Bunny chỉ còn " + max + " chiếc cho loại bánh này!");
             }
         }
     </script>

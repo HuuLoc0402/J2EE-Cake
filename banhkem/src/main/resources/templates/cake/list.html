@@ -1,61 +1,114 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
 <body>
-<main class="container py-5">
-    <style>
-        /* Style cho bộ lọc và thẻ sản phẩm phong cách Bunny */
-        .filter-card { background: rgba(255, 255, 255, 0.85); border-radius: 25px; border: 2px dashed var(--primary-pink); }
-        .search-box { border-radius: 50px; border: 2px solid var(--primary-pink); background: white; }
-        .btn-bunny { background-color: var(--primary-pink); color: var(--dark-brown); font-weight: 800; border-radius: 50px; border: none; }
-        .btn-bunny:hover { background-color: #ff99aa; color: white; }
+<main class="container-fluid py-5 px-lg-5"> <style>
+    /* PHÓNG TO BỘ LỌC VÀ TÌM KIẾM */
+    .filter-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 30px;
+        border: 3px dashed var(--primary-pink);
+        padding: 2.5rem !important;
+    }
 
-        /* Hiệu ứng nhấp vào toàn bộ thẻ */
-        .card-product {
-            transition: all 0.3s ease-in-out;
-            border-radius: 20px;
-            border: 1px solid var(--soft-pink);
-            background: white;
-            cursor: pointer;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .card-product:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(255, 182, 193, 0.3);
-            border-color: var(--primary-pink);
-        }
-        .card-product:hover img { transform: scale(1.05); }
-        .product-link { text-decoration: none; color: inherit; }
-    </style>
+    .search-box {
+        border-radius: 60px;
+        border: 3px solid var(--primary-pink);
+        background: white;
+        font-size: 1.5rem !important; /* Chữ trong ô tìm kiếm to hơn */
+        height: 80px;
+    }
+
+    .btn-bunny {
+        background-color: var(--primary-pink);
+        color: var(--dark-brown);
+        font-weight: 900;
+        border-radius: 60px;
+        border: none;
+        font-size: 1.4rem; /* Nút tìm kiếm to */
+        transition: 0.3s;
+    }
+    .btn-bunny:hover { background-color: #ff99aa; transform: scale(1.05); }
+
+    /* THẺ SẢN PHẨM KHỔNG LỒ */
+    .card-product {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: 30px;
+        border: 2px solid var(--soft-pink);
+        background: white;
+        cursor: pointer;
+        overflow: hidden;
+        height: 100%;
+    }
+    .card-product:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 50px rgba(255, 182, 193, 0.4);
+        border-color: var(--primary-pink);
+    }
+
+    .product-img {
+        height: 320px !important; /* Tăng chiều cao ảnh bánh */
+        object-fit: cover;
+        transition: 0.6s;
+    }
+
+    .cake-name {
+        font-size: 1.8rem !important; /* Tên bánh to rõ */
+        font-weight: 800;
+        color: var(--dark-brown);
+        margin-bottom: 15px;
+    }
+
+    .cake-price {
+        font-size: 2.2rem !important; /* Giá bánh to nổi bật */
+        color: #d63384;
+        font-weight: 900;
+    }
+
+    /* PHÓNG TO CÁC INPUT SELECT */
+    .form-select-lg-custom {
+        height: 60px;
+        font-size: 1.2rem !important;
+        font-weight: 700;
+        border: 2px solid var(--primary-pink) !important;
+        border-radius: 50px !important;
+        margin-bottom: 20px;
+    }
+
+    .filter-label {
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        display: block;
+        color: var(--dark-brown);
+    }
+</style>
 
     <div class="row mb-5 justify-content-center">
-        <div class="col-md-8">
-            <form th:action="@{/cake}" method="get" class="d-flex gap-2">
+        <div class="col-md-10">
+            <form th:action="@{/cake}" method="get" class="d-flex gap-3">
                 <input type="text" name="keyword" th:value="${keyword}"
-                       class="form-control search-box py-3 px-4 shadow-sm" placeholder="Tìm tên chiếc bánh bạn thích...">
+                       class="form-control search-box px-5 shadow-lg" placeholder="Tìm tên chiếc bánh bạn thích...">
 
                 <input type="hidden" name="categoryId" th:value="${categoryId}">
                 <input type="hidden" name="minPrice" th:value="${minPrice}">
                 <input type="hidden" name="maxPrice" th:value="${maxPrice}">
                 <input type="hidden" name="sort" th:value="${sort}">
 
-                <button class="btn btn-bunny px-5 shadow-sm" type="submit">TÌM KIẾM</button>
+                <button class="btn btn-bunny px-5 shadow-lg" type="submit">TÌM KIẾM</button>
             </form>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-3">
+    <div class="row g-5">
+        <div class="col-xl-3 col-lg-4">
             <form th:action="@{/cake}" method="get" id="filterForm">
                 <input type="hidden" name="keyword" th:value="${keyword}">
-                <div class="card filter-card shadow-sm p-4 mb-4 sticky-top" style="top: 170px;">
-                    <h5 class="fw-bold mb-3" style="color: var(--dark-brown); font-family: 'Pacifico', cursive;">Lọc Bánh</h5>
+                <div class="card filter-card shadow-lg sticky-top" style="top: 150px;">
+                    <h2 class="fw-bold mb-4" style="color: var(--dark-brown); font-family: 'Pacifico', cursive; font-size: 2.5rem;">Lọc Bánh</h2>
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">SẮP XẾP</label>
-                        <select name="sort" class="form-select rounded-pill border-danger shadow-none" onchange="this.form.submit()">
+                    <div class="mb-4">
+                        <label class="filter-label fw-bold text-uppercase">Sắp xếp theo</label>
+                        <select name="sort" class="form-select form-select-lg-custom shadow-none" onchange="this.form.submit()">
                             <option value="">Mặc định</option>
                             <option value="priceAsc" th:selected="${sort == 'priceAsc'}">Giá thấp đến cao</option>
                             <option value="priceDesc" th:selected="${sort == 'priceDesc'}">Giá cao đến thấp</option>
@@ -64,49 +117,49 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">DANH MỤC</label>
-                        <select name="categoryId" class="form-select rounded-pill border-danger shadow-none" onchange="this.form.submit()">
+                    <div class="mb-4">
+                        <label class="filter-label fw-bold text-uppercase">Loại bánh</label>
+                        <select name="categoryId" class="form-select form-select-lg-custom shadow-none" onchange="this.form.submit()">
                             <option value="">Tất cả loại bánh</option>
                             <option th:each="cat : ${categories}" th:value="${cat.id}"
                                     th:text="${cat.name}" th:selected="${categoryId == cat.id}"></option>
                         </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">KHOẢNG GIÁ (VND)</label>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <input type="number" name="minPrice" th:value="${minPrice}" class="form-control rounded-3 border-danger" placeholder="Từ">
-                            <input type="number" name="maxPrice" th:value="${maxPrice}" class="form-control rounded-3 border-danger" placeholder="Đến">
+                    <div class="mb-4">
+                        <label class="filter-label fw-bold text-uppercase">Khoảng giá (VND)</label>
+                        <div class="d-flex flex-column gap-3">
+                            <input type="number" name="minPrice" th:value="${minPrice}" class="form-control form-select-lg-custom px-4" placeholder="Từ">
+                            <input type="number" name="maxPrice" th:value="${maxPrice}" class="form-control form-select-lg-custom px-4" placeholder="Đến">
+                            <button type="submit" class="btn btn-bunny w-100 py-3 mt-2 shadow">ÁP DỤNG GIÁ</button>
                         </div>
-                        <button type="submit" class="btn btn-bunny btn-sm w-100 py-2">ÁP DỤNG GIÁ</button>
                     </div>
 
-                    <a href="/cake" class="btn btn-link btn-sm w-100 text-muted small mt-2 text-decoration-none">Xóa tất cả bộ lọc</a>
+                    <a href="/cake" class="btn btn-link btn-lg w-100 text-muted fw-bold mt-2 text-decoration-none">Xóa tất cả bộ lọc</a>
                 </div>
             </form>
         </div>
 
-        <div class="col-md-9">
-            <div class="row g-4">
+        <div class="col-xl-9 col-lg-8">
+            <div class="row g-5">
                 <div th:if="${#lists.isEmpty(cakes)}" class="col-12 text-center py-5">
-                    <div class="bg-white p-5 rounded-5 shadow-sm d-inline-block border">
-                        <p class="text-muted fw-bold mb-0"> Bunny chưa tìm thấy bánh theo yêu cầu!</p>
+                    <div class="bg-white p-5 rounded-5 shadow-lg d-inline-block border border-3 border-dashed border-danger">
+                        <h2 class="text-muted fw-bold mb-0"> <i class="bi bi-emoji-frown"></i> Bunny chưa tìm thấy bánh này!</h2>
                     </div>
                 </div>
 
-                <div th:each="cake : ${cakes}" class="col-md-4">
-                    <a th:href="@{/cake/{id}(id=${cake.id})}" class="product-link">
-                        <div class="card card-product shadow-sm overflow-hidden">
-                            <div class="overflow-hidden">
+                <div th:each="cake : ${cakes}" class="col-xl-4 col-md-6">
+                    <a th:href="@{/cake/{id}(id=${cake.id})}" class="text-decoration-none">
+                        <div class="card card-product shadow-lg">
+                            <div class="position-relative overflow-hidden">
                                 <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}"
-                                     class="card-img-top" style="height: 220px; object-fit: cover; transition: 0.5s;" alt="Cake Image">
+                                     class="card-img-top product-img" alt="Cake Image">
                             </div>
                             <div class="card-body text-center p-4">
-                                <h6 class="fw-bold mb-2 text-truncate" th:text="${cake.name}" style="color: var(--dark-brown);"></h6>
-                                <p class="text-danger fw-bold fs-5 mb-3"
+                                <h3 class="cake-name text-truncate" th:text="${cake.name}"></h3>
+                                <p class="cake-price mb-4"
                                    th:text="${#numbers.formatDecimal(cake.price, 0, 'COMMA', 0, 'POINT') + 'đ'}"></p>
-                                <div class="btn btn-bunny w-100 py-2 shadow-sm mt-auto">XEM CHI TIẾT</div>
+                                <div class="btn btn-bunny w-100 py-3 shadow">CHI TIẾT BÁNH</div>
                             </div>
                         </div>
                     </a>

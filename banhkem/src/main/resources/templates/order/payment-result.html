@@ -1,22 +1,66 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/user-layout :: layout(~{::main})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
 <body>
-<main class="container py-5 text-center">
-    <div class="card shadow-lg p-5 mx-auto border-0" style="max-width: 600px; border-radius: 20px;">
+<main class="container py-5 px-lg-5">
+    <style>
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50px !important;
+            border: 5px dashed var(--primary-pink) !important;
+            max-width: 850px;
+            box-shadow: 0 25px 60px rgba(255, 182, 193, 0.3);
+            margin: 30px auto;
+        }
+        .qr-wrapper {
+            background: white;
+            padding: 30px;
+            border-radius: 40px;
+            display: inline-block;
+            border: 3px solid var(--soft-pink);
+            margin: 30px 0;
+            transition: 0.3s;
+        }
+        .status-icon-huge { font-size: 8rem; }
+        .text-bunny-brown { color: var(--dark-brown); }
+        .btn-huge-result {
+            padding: 20px 45px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            border-radius: 60px;
+            transition: 0.3s;
+        }
+    </style>
+
+    <div class="card result-card p-5 text-center border-0">
         <div th:if="${message.contains('thành công')}">
-            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-            <h2 class="mt-3 text-success fw-bold">Giao dịch thành công!</h2>
-        </div>
-        <div th:unless="${message.contains('thành công')}">
-            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
-            <h2 class="mt-3 text-danger fw-bold">Giao dịch thất bại</h2>
+            <i class="bi bi-patch-check-fill text-success status-icon-huge"></i>
+            <h1 class="display-3 fw-bold mt-4" style="color: var(--dark-brown); font-family: 'Pacifico', cursive;">Tuyệt vời!</h1>
+            <h2 class="text-success fw-bold mb-4" style="letter-spacing: 2px;">THANH TOÁN THÀNH CÔNG</h2>
+
+            <p class="fs-4 text-secondary mb-2">Cảm ơn bạn đã lựa chọn Bunny Bakery!</p>
+            <p class="fs-5 text-muted mb-4 px-lg-5">
+                Hóa đơn chi tiết kèm <b>Mã QR nhận bánh</b> đã được gửi tới email của bạn. Bạn cũng có thể lưu mã bên dưới:
+            </p>
+
+            <div class="qr-wrapper shadow-lg">
+                <img th:src="'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BUNNY-ORDER-' + ${orderId}"
+                     alt="QR Nhận Hàng" width="250" height="250">
+                <div class="mt-3 fs-3 fw-bold text-bunny-brown">Mã đơn: #<span th:text="${orderId}"></span></div>
+            </div>
         </div>
 
-        <p class="lead mt-3 text-secondary" th:text="${message}"></p>
-        <hr class="my-4">
-        <div class="d-flex justify-content-center gap-3">
-            <a href="/order/history" class="btn btn-outline-dark px-4 rounded-pill">Lịch sử đơn hàng</a>
-            <a href="/" class="btn btn-danger px-4 rounded-pill">Về trang chủ</a>
+        <div th:unless="${message.contains('thành công')}">
+            <i class="bi bi-x-circle-fill text-danger status-icon-huge"></i>
+            <h1 class="display-3 fw-bold mt-4" style="color: var(--dark-brown); font-family: 'Pacifico', cursive;">Rất tiếc...</h1>
+            <h2 class="text-danger fw-bold mb-4 uppercase">Giao dịch chưa hoàn tất</h2>
+            <p class="fs-4 text-secondary mb-5 px-lg-5" th:text="${message}"></p>
+        </div>
+
+        <hr class="my-5" style="border-top: 4px dashed var(--soft-pink);">
+
+        <div class="d-flex justify-content-center gap-4 flex-wrap">
+            <a href="/order/history" class="btn btn-outline-dark btn-huge-result border-3 shadow-sm">LỊCH SỬ ĐƠN HÀNG</a>
+            <a href="/" class="btn btn-danger btn-huge-result shadow-lg">VỀ TRANG CHỦ</a>
         </div>
     </div>
 </main>

@@ -1,67 +1,232 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
 <body>
-<main class="container py-5">
+<main class="container-fluid py-5 px-lg-5">
+    <style>
+        .checkout-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 40px !important;
+            border: 4px dashed var(--primary-pink) !important;
+            padding: 3rem !important;
+        }
+        .form-label-huge {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--dark-brown);
+            margin-bottom: 12px;
+        }
+        .input-huge {
+            height: 65px;
+            border-radius: 50px !important;
+            border: 3px solid var(--soft-pink) !important;
+            padding: 0 30px !important;
+            font-size: 1.2rem !important;
+            font-weight: 700;
+        }
+        .input-huge:focus { border-color: var(--primary-pink) !important; box-shadow: none !important; }
+
+        .textarea-huge {
+            border-radius: 30px !important;
+            border: 3px solid var(--soft-pink) !important;
+            padding: 20px 30px !important;
+            font-size: 1.2rem !important;
+            font-weight: 700;
+        }
+
+        .summary-card-checkout {
+            background: white;
+            border-radius: 40px;
+            border: 2px solid var(--soft-pink);
+            padding: 3rem !important;
+        }
+
+        .cake-thumb-huge {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 3px solid var(--soft-pink);
+        }
+
+        .btn-confirm-huge {
+            background: var(--primary-pink) !important;
+            color: var(--dark-brown) !important;
+            font-weight: 900;
+            font-size: 1.8rem;
+            border-radius: 60px;
+            padding: 25px;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-confirm-huge:hover {
+            background: #ff99aa !important;
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px rgba(255, 182, 193, 0.4);
+        }
+
+        .select-huge {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%235D4037' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1.5rem center;
+            background-size: 16px 12px;
+        }
+    </style>
+
+    <div class="mb-5 ms-lg-4">
+        <h1 class="fw-bold m-0" style="color: var(--dark-brown); font-family: 'Pacifico', cursive; font-size: 3.5rem;">
+            Xác nhận đơn hàng
+        </h1>
+    </div>
+
     <div class="row g-5">
-        <div class="col-md-7">
-            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
-                <h4 class="fw-bold mb-4" style="color: #3E2723; border-left: 4px solid #FF69B4; padding-left: 10px;">
-                    Thông Tin Nhận Bánh
-                </h4>
-                <form th:action="@{/order/create}" method="post">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Họ và tên người nhận</label>
-                        <input type="text" name="receiverName" class="form-control rounded-pill border-danger" th:value="${user.fullName}" required>
-                    </div>
-                    <div class="row g-3 mb-3">
+        <div class="col-xl-7">
+            <div class="card checkout-card shadow-lg">
+                <h2 class="fw-bold mb-5" style="color: var(--dark-brown); font-family: 'Pacifico', cursive; font-size: 2.5rem;">Thông Tin Nhận Bánh</h2>
+
+                <form th:action="@{/order/create}" method="post" id="checkoutForm">
+                    <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Số điện thoại</label>
-                            <input type="tel" name="phone" class="form-control rounded-pill border-danger" th:value="${user.phone}" required>
+                            <label class="form-label-huge">Họ và tên người nhận</label>
+                            <input type="text" name="receiverName" class="form-control input-huge" th:value="${user.fullName}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Ngày muốn nhận bánh</label>
-                            <input type="date" name="deliveryDate" class="form-control rounded-pill border-danger" required>
+                            <label class="form-label-huge">Số điện thoại</label>
+                            <input type="tel" name="phone" class="form-control input-huge" th:value="${user.phone}" required>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Địa chỉ chi tiết</label>
-                        <textarea name="shippingAddress" class="form-control rounded-4 border-danger" rows="3" placeholder="Số nhà, tên đường, phường/xã..." required></textarea>
+
+                    <div class="mb-4">
+                        <label class="form-label-huge">Ngày muốn nhận bánh</label>
+                        <input type="date" name="deliveryDate" class="form-control input-huge" required>
                     </div>
-                    <div class="p-3 bg-light rounded-3 mt-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="vnpay" value="VNPAY" checked>
-                            <label class="form-check-label fw-bold" for="vnpay">
-                                <i class="bi bi-credit-card-2-back me-2"></i>Thanh toán qua cổng VNPay
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label-huge">Tỉnh / Thành</label>
+                            <select id="province" class="form-select input-huge select-huge" required>
+                                <option value="" selected disabled>Chọn Tỉnh</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-huge">Quận / Huyện</label>
+                            <select id="district" class="form-select input-huge select-huge" required disabled>
+                                <option value="" selected disabled>Chọn Huyện</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-huge">Phường / Xã</label>
+                            <select id="ward" class="form-select input-huge select-huge" required disabled>
+                                <option value="" selected disabled>Chọn Xã</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label-huge">Số nhà, tên đường</label>
+                        <input type="text" id="streetAddress" class="form-control input-huge" placeholder="Ví dụ: 123 Đường Chu Văn An..." required>
+                    </div>
+
+                    <input type="hidden" name="shippingAddress" id="fullAddress">
+
+                    <div class="mb-5">
+                        <label class="form-label-huge">Ghi chú cho Bunny (Kiểu chữ, lời nhắn trên bánh...)</label>
+                        <textarea name="note" class="form-control textarea-huge" rows="3" placeholder="Bunny ơi, viết lên bánh là: Chúc mừng sinh nhật nhé..."></textarea>
+                    </div>
+
+                    <div class="p-4 rounded-5 mb-5" style="background: #fff0f5; border: 2px solid var(--soft-pink);">
+                        <div class="form-check d-flex align-items-center gap-3">
+                            <input class="form-check-input" style="width: 25px; height: 25px;" type="radio" name="paymentMethod" id="vnpay" value="VNPAY" checked>
+                            <label class="form-check-label fw-bold fs-4 ms-2" for="vnpay">
+                                Thanh toán VNPay (Ngân hàng/QR Code)
                             </label>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold shadow mt-4 py-3">
-                        XÁC NHẬN VÀ THANH TOÁN
+
+                    <button type="submit" class="btn btn-confirm-huge w-100 shadow-lg text-uppercase">
+                        Xác nhận và Thanh toán
                     </button>
                 </form>
             </div>
         </div>
 
-        <div class="col-md-5">
-            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white sticky-top" style="top: 100px;">
-                <h5 class="fw-bold mb-4 text-center">Tóm Tắt Đơn Hàng</h5>
-                <div th:each="item : ${cartItems}" class="d-flex align-items-center mb-3">
-                    <img th:src="${item.cake.image}" class="rounded-3 me-3 shadow-sm" width="60" height="60" style="object-fit: cover;">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0 fw-bold" th:text="${item.cake.name}"></h6>
-                        <small class="text-muted" th:text="'Số lượng: ' + ${item.quantity}"></small>
+        <div class="col-xl-5">
+            <div class="card summary-card-checkout shadow-lg sticky-top" style="top: 150px;">
+                <h3 class="fw-bold mb-5 text-center" style="color: var(--dark-brown);">Đơn Hàng Của Bạn</h3>
+
+                <div class="overflow-auto mb-4" style="max-height: 400px;">
+                    <div th:each="item : ${cartItems}" class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                        <img th:src="${item.cake.image}" class="cake-thumb-huge me-4 shadow-sm">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-2 fw-bold" style="color: var(--dark-brown);" th:text="${item.cake.name}"></h4>
+                            <span class="fs-5 text-muted fw-bold" th:text="'Số lượng: ' + ${item.quantity}"></span>
+                        </div>
+                        <span class="fs-4 fw-bold" style="color: #d63384;"
+                              th:text="${#numbers.formatDecimal(item.cake.price * item.quantity, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
                     </div>
-                    <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(item.cake.price * item.quantity, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
                 </div>
-                <hr>
-                <div class="d-flex justify-content-between fs-4 fw-bold text-brown">
-                    <span>TỔNG TIỀN:</span>
-                    <span class="text-danger" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+
+                <div class="d-flex justify-content-between align-items-center fs-2 fw-bold pt-4">
+                    <span style="color: var(--dark-brown);">TỔNG TIỀN:</span>
+                    <span style="color: #d63384;" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
                 </div>
-                <p class="small text-muted mt-3 text-center"><i class="bi bi-info-circle me-1"></i>Vui lòng kiểm tra kỹ thông tin trước khi đặt hàng.</p>
             </div>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script>
+        const host = "https://provinces.open-api.vn/api/";
+        var province = document.getElementById("province");
+        var district = document.getElementById("district");
+        var ward = document.getElementById("ward");
+
+        // Load Tỉnh
+        axios.get(host + "?depth=1").then((response) => {
+            response.data.forEach(item => {
+                province.options[province.options.length] = new Option(item.name, item.code);
+            });
+        });
+
+        // Load Huyện
+        province.onchange = () => {
+            district.length = 1;
+            district.disabled = false;
+            axios.get(host + "p/" + province.value + "?depth=2").then((response) => {
+                response.data.districts.forEach(item => {
+                    district.options[district.options.length] = new Option(item.name, item.code);
+                });
+            });
+            updateFullAddress();
+        };
+
+        // Load Xã
+        district.onchange = () => {
+            ward.length = 1;
+            ward.disabled = false;
+            axios.get(host + "d/" + district.value + "?depth=2").then((response) => {
+                response.data.wards.forEach(item => {
+                    ward.options[ward.options.length] = new Option(item.name, item.code);
+                });
+            });
+            updateFullAddress();
+        };
+
+        ward.onchange = () => updateFullAddress();
+        document.getElementById("streetAddress").oninput = () => updateFullAddress();
+
+        // Gộp địa chỉ
+        function updateFullAddress() {
+            const p = province.options[province.selectedIndex]?.text || "";
+            const d = district.options[district.selectedIndex]?.text || "";
+            const w = ward.options[ward.selectedIndex]?.text || "";
+            const s = document.getElementById("streetAddress").value;
+
+            if (p && d && w && s) {
+                document.getElementById("fullAddress").value = `${s}, ${w}, ${d}, ${p}`;
+            }
+        }
+    </script>
 </main>
 </body>
 </html>

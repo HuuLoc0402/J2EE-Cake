@@ -11,32 +11,44 @@
             font-family: 'Quicksand', sans-serif;
             background: url('/images/background.png') no-repeat center center fixed;
             background-size: cover;
-            height: 100vh; display: flex; flex-direction: column; margin: 0;
+            min-height: 100vh; display: flex; flex-direction: column; margin: 0;
         }
-        .auth-header { background: rgba(255, 255, 255, 0.9); height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 3px solid black; }
-        .auth-logo { height: 80px; }
-        .auth-store-name { font-family: 'Pacifico', cursive; color: var(--dark-brown); font-size: 1.4rem; }
-        .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .auth-header { background: rgba(255, 255, 255, 0.95); height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 4px solid var(--primary-pink); }
+        .auth-logo { height: 100px; }
+        .auth-store-name { font-family: 'Pacifico', cursive; color: var(--dark-brown); font-size: 2rem; margin-top: 5px; }
+
+        .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 50px 0; }
+
+        /* CỐ ĐỊNH KÍCH THƯỚC KHUNG GIỐNG HỆT ĐĂNG NHẬP */
         .auth-box {
             background: var(--box-bg);
-            border: 2px dashed var(--dark-brown);
-            border-radius: 20px;
-            padding: 30px 40px;
-            width: 480px;
-            height: 550px;
+            border: 4px dashed var(--dark-brown);
+            border-radius: 40px;
+            padding: 50px 60px;
+            width: 600px;
+            min-height: 700px;
             display: flex; flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
         }
-        .auth-title { text-align: center; font-weight: 800; color: var(--dark-brown); margin-bottom: 15px; font-size: 2rem; }
-        .form-label { font-weight: 700; color: var(--dark-brown); width: 130px; margin-bottom: 0; font-size: 0.9rem; }
-        .input-group-custom { display: flex; align-items: center; margin-bottom: 10px; }
-        .form-control { border-radius: 50px; border: none; padding: 7px 18px; background: #FFF0F5; flex: 1; font-size: 0.9rem; }
-        .btn-red { background: #dc3545; color: white; font-weight: 800; border-radius: 50px; padding: 12px; border: none; width: 100%; margin-top: auto; transition: 0.3s; }
-        .btn-red:hover { background: #bb2d3b; transform: scale(1.02); }
-        .btn-outline { background: white; color: #6c757d; font-weight: 800; border-radius: 50px; padding: 8px; border: 1px solid #6c757d; width: 100%; margin-top: 8px; text-decoration: none; text-align: center; font-size: 0.9rem; }
-        .footer-text { text-align: center; margin-top: 8px; font-size: 0.85rem; }
-        .footer-text a { color: var(--dark-brown); font-weight: 700; text-decoration: underline; }
-        .address-text { position: fixed; bottom: 20px; right: 40px; font-weight: 700; color: var(--dark-brown); }
+        .auth-title { text-align: center; font-weight: 900; color: var(--dark-brown); margin-bottom: 30px; font-size: 3.5rem; font-family: 'Pacifico', cursive; }
+
+        .form-label { font-weight: 800; color: var(--dark-brown); width: 170px; margin-bottom: 0; font-size: 1.1rem; }
+        .input-group-custom { display: flex; align-items: center; margin-bottom: 18px; }
+
+        .form-control {
+            border-radius: 50px; border: 3px solid transparent; padding: 12px 25px;
+            background: #FFF0F5; flex: 1; font-size: 1.05rem; font-weight: 700;
+            transition: 0.3s;
+        }
+        .form-control:focus { border-color: var(--primary-pink); box-shadow: none; outline: none; background: white; }
+
+        .btn-red { background: #dc3545; color: white; font-weight: 900; border-radius: 50px; padding: 20px; border: none; width: 100%; font-size: 1.4rem; transition: 0.3s; margin-top: auto; }
+        .btn-red:hover { background: #bb2d3b; transform: scale(1.05); box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3); }
+
+        .btn-outline { background: white; color: var(--dark-brown); font-weight: 800; border-radius: 50px; padding: 10px; border: 2px solid var(--dark-brown); width: 100%; margin-top: 15px; text-decoration: none; text-align: center; font-size: 1.1rem; }
+
+        .footer-text { text-align: center; margin-top: 20px; font-size: 1.1rem; }
+        .footer-text a { color: var(--dark-brown); font-weight: 800; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -49,7 +61,7 @@
         <h2 class="auth-title">Đăng ký</h2>
         <form id="registerForm" style="flex: 1; display: flex; flex-direction: column;">
             <div class="input-group-custom">
-                <label class="form-label">Tên đăng nhập</label>
+                <label class="form-label">Tài khoản</label>
                 <input type="text" id="username" class="form-control" required>
             </div>
             <div class="input-group-custom">
@@ -72,15 +84,15 @@
                 <label class="form-label">Địa chỉ</label>
                 <input type="text" id="address" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-red">TẠO TÀI KHOẢN</button>
+            <button type="submit" class="btn btn-red text-uppercase">Tạo tài khoản ngay</button>
             <a href="/" class="btn btn-outline">Quay lại trang chủ</a>
             <div class="footer-text">
-                <span>Đã có tài khoản? </span><a href="/auth/login">Đăng nhập ngay</a>
+                <span>Đã có tài khoản? </span><a href="/auth/login">Đăng nhập</a>
             </div>
         </form>
     </div>
 </div>
-<div class="address-text">Ho Chi Minh City, Viet Nam</div>
+
 <script>
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -101,10 +113,7 @@
             if (response.ok) {
                 alert("Đăng ký thành công!");
                 window.location.href = "/auth/login";
-            } else {
-                const err = await response.json();
-                alert("Lỗi: " + (err.message || "Tài khoản đã tồn tại!"));
-            }
+            } else { alert("Tài khoản đã tồn tại!"); }
         } catch (error) { alert("Không thể kết nối đến máy chủ!"); }
     });
 </script>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<main class="container py-5 px-lg-5">
+    <style>
+        .profile-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 40px !important;
+            border: 4px dashed var(--primary-pink) !important;
+            padding: 50px !important;
+            max-width: 950px; /* Tăng nhẹ chiều rộng để dàn hàng 3 nút */
+            margin: 0 auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+        .form-label-huge { font-weight: 800; color: var(--dark-brown); font-size: 1.2rem; margin-bottom: 8px; }
+        .input-huge {
+            border-radius: 50px !important;
+            border: 3px solid var(--soft-pink) !important;
+            padding: 12px 25px !important;
+            font-size: 1.1rem !important;
+            font-weight: 700;
+            background-color: #FFF0F5 !important;
+            margin-bottom: 15px;
+        }
+        .input-huge:focus { border-color: var(--primary-pink) !important; background-color: white !important; box-shadow: none; }
+        .input-readonly { background-color: #e9ecef !important; cursor: not-allowed; border-style: solid !important; }
+
+        .btn-action-huge {
+            font-weight: 900;
+            font-size: 1.1rem;
+            border-radius: 60px;
+            padding: 18px 25px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #password-section {
+            display: none;
+            border-top: 3px dashed var(--soft-pink);
+            margin-top: 40px;
+            padding-top: 40px;
+            animation: fadeInDown 0.5s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <div class="profile-card shadow-lg">
+        <h1 class="text-center fw-bold mb-5" style="font-family: 'Pacifico', cursive; color: var(--dark-brown); font-size: 3.5rem;">Hồ Sơ Của Bạn</h1>
+
+        <form id="profileForm">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label-huge">Tên đăng nhập</label>
+                    <input type="text" th:value="${user.username}" class="form-control input-huge input-readonly" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-huge">Họ và tên</label>
+                    <input type="text" id="fullName" th:value="${user.fullName}" class="form-control input-huge" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-huge">Số điện thoại</label>
+                    <input type="tel" id="phone" th:value="${user.phone}" class="form-control input-huge" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-huge">Email</label>
+                    <input type="email" id="email" th:value="${user.email}" class="form-control input-huge" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label-huge">Địa chỉ giao bánh mặc định</label>
+                    <input type="text" id="address" th:value="${user.address}" class="form-control input-huge" required>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-4">
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-danger btn-action-huge w-100 shadow">
+                        <i class="bi bi-save2-fill me-2"></i> Lưu hồ sơ
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" onclick="togglePasswordSection()" class="btn btn-outline-dark btn-action-huge w-100 border-3">
+                        <i class="bi bi-shield-lock-fill me-2"></i> Đổi mật khẩu
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <a href="/" class="btn btn-secondary btn-action-huge w-100 shadow-sm" style="background-color: var(--dark-brown); border: none;">
+                        <i class="bi bi-house-heart-fill me-2"></i> Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <div id="password-section">
+            <h3 class="text-center fw-bold mb-4" style="color: var(--dark-brown);">Thiết Lập Mật Khẩu Mới</h3>
+            <form id="passwordForm">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <label class="form-label-huge">Mật khẩu hiện tại</label>
+                        <input type="password" id="oldPassword" class="form-control input-huge" required>
+
+                        <label class="form-label-huge">Mật khẩu mới</label>
+                        <input type="password" id="newPassword" class="form-control input-huge" required>
+
+                        <label class="form-label-huge">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirmPassword" class="form-control input-huge" required>
+
+                        <button type="submit" class="btn btn-dark btn-action-huge w-100 mt-3" style="background: var(--dark-brown) !important;">
+                            Xác nhận thay đổi mật khẩu
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function togglePasswordSection() {
+            const section = document.getElementById('password-section');
+            if (section.style.display === 'none' || section.style.display === '') {
+                section.style.display = 'block';
+                section.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // 1. Cập nhật thông tin
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+            const response = await fetch('/api/auth/profile/update', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            if (response.ok) alert("✨ Bunny đã cập nhật hồ sơ của bạn!");
+            else alert("❌ Lỗi cập nhật.");
+        });
+
+        // 2. Đổi mật khẩu
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alert("⚠️ Mật khẩu mới không trùng khớp!");
+                return;
+            }
+
+            const response = await fetch('/api/auth/profile/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ oldPassword, newPassword })
+            });
+
+            if (response.ok) {
+                alert("✅ Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                window.location.href = '/auth/login';
+            } else {
+                const errorData = await response.json();
+                alert("❌ " + (errorData.message || "Mật khẩu hiện tại không đúng!"));
+            }
+        });
+    </script>
+</main>
+</body>
+</html>

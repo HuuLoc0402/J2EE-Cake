@@ -14,15 +14,21 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String receiverName;
+
     private LocalDateTime orderDate;
     private Double totalAmount;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String shippingAddress;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String note;
     private String phone;
 
     @ManyToOne
