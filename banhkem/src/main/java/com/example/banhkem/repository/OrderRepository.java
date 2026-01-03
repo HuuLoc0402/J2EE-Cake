@@ -27,4 +27,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "WHERE o.status = :status AND YEAR(o.orderDate) = :year " +
             "GROUP BY MONTH(o.orderDate)")
     List<Object[]> getCakeCountByMonth(@Param("year") int year, @Param("status") OrderStatus status);
+    boolean existsByUserIdAndStatusAndItems_Cake_Id(Long userId, OrderStatus status, Long cakeId);
 }

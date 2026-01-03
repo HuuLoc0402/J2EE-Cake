@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
+      th:replace="~{layout/main-layout :: layout(~{::main})}">
 <head>
     <meta charset="UTF-8">
 </head>
 <body>
 <main class="container py-5">
     <style>
+        /* --- GIỮ NGUYÊN TOÀN BỘ CSS GỐC CỦA BẠN --- */
         .detail-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
@@ -96,32 +98,47 @@
             border: 2px solid var(--soft-pink);
             padding: 10px 20px;
         }
+
+        /* --- CSS CHO PHẦN ĐÁNH GIÁ (MỚI THÊM) --- */
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 10px; }
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 2.5rem; color: #ddd; cursor: pointer; transition: 0.2s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+        .reply-box { border-left: 4px solid #dc3545; background: #fffafa; margin-left: 45px; padding: 15px; border-radius: 15px; }
+        .review-img-thumb { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .avatar-review { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; background: #dc3545; font-weight: bold; }
     </style>
 
     <div class="card detail-card p-4 p-lg-5 shadow-lg">
         <div class="row g-5 align-items-center">
             <div class="col-md-6">
                 <div class="img-container">
-                    <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}"
-                         alt="Sản phẩm Bunny Bakery">
+                    <img th:src="${cake.image != null ? cake.image : '/images/default-cake.jpg'}" alt="Bunny Bakery">
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="mb-4">
-                    <h1 class="cake-title" th:text="${cake.name}">Tên bánh kem</h1>
+                    <h1 class="cake-title" th:text="${cake.name}"></h1>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="text-warning fs-4 me-2">
+                            <i th:each="i : ${#numbers.sequence(1, 5)}"
+                               th:class="${i <= avgRating ? 'bi bi-star-fill' : (i - 0.5 <= avgRating ? 'bi bi-star-half' : 'bi bi-star')}"></i>
+                        </div>
+                        <span class="fw-bold text-muted" th:text="${#numbers.formatDecimal(avgRating, 1, 1) + ' / 5 (' + (reviews != null ? reviews.size() : 0) + ' đánh giá)'}"></span>
+                    </div>
+
                     <span class="category-text">
                         <i class="bi bi-heart-fill me-1"></i>
                         <span th:text="${cake.category != null ? cake.category.name : 'Homemade'}"></span>
                     </span>
-                    <div class="price-tag mb-3"
-                         th:text="${#numbers.formatDecimal(cake.price != null ? cake.price : 0, 0, 'COMMA', 0, 'POINT') + 'đ'}">
-                    </div>
+                    <div class="price-tag mb-3" th:text="${#numbers.formatDecimal(cake.price ?: 0, 0, 'COMMA', 0, 'POINT') + 'đ'}"></div>
                 </div>
 
                 <div class="info-box">
                     <h6 class="fw-bold text-muted small text-uppercase mb-2">Mô tả sản phẩm</h6>
-                    <p class="mb-0 text-dark fs-5" th:text="${cake.description}">Thông tin chi tiết về hương vị và nguyên liệu...</p>
+                    <p class="mb-0 text-dark fs-5" th:text="${cake.description}"></p>
                 </div>
 
                 <div class="row g-3 mb-4 text-center">
@@ -133,9 +150,7 @@
                                 <strong class="text-success">CÒN HÀNG</strong>
                                 <div class="text-muted small fw-bold mt-1" th:text="'(Kho còn: ' + ${cake.stockQuantity} + ')'"></div>
                             </div>
-                            <div th:unless="${cake.stockQuantity > 0}">
-                                <strong class="text-danger">HẾT HÀNG</strong>
-                            </div>
+                            <div th:unless="${cake.stockQuantity > 0}"><strong class="text-danger">HẾT HÀNG</strong></div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -150,28 +165,22 @@
 
                 <form th:action="@{/cart/add}" method="post" id="addToCartForm">
                     <input type="hidden" name="cakeId" th:value="${cake.id}">
-
                     <div class="d-flex align-items-center justify-content-between mb-4 qty-selector shadow-sm" th:if="${cake.stockQuantity > 0}">
                         <span class="fw-bold text-muted">Số lượng mua:</span>
                         <div class="d-flex align-items-center gap-4">
                             <span class="qty-btn" style="cursor:pointer; font-size: 1.5rem; color: #ff4d6d; font-weight: bold;" onclick="adjustQty(-1)">-</span>
-                            <input type="number" id="quantity" name="quantity"
-                                   class="form-control text-center border-0 bg-transparent fw-bold fs-4 p-0"
-                                   value="1" min="1" th:max="${cake.stockQuantity}" readonly style="width: 50px;">
+                            <input type="number" id="quantity" name="quantity" class="form-control text-center border-0 bg-transparent fw-bold fs-4 p-0" value="1" readonly style="width: 50px;">
                             <span class="qty-btn" style="cursor:pointer; font-size: 1.5rem; color: #ff4d6d; font-weight: bold;" onclick="adjustQty(1)">+</span>
                         </div>
                     </div>
-
                     <div class="row g-3">
                         <div class="col-6">
-                            <button type="submit" class="btn btn-bunny-main w-100 shadow" th:disabled="${cake.stockQuantity <= 0}">
+                            <button type="button" class="btn btn-bunny-main w-100 shadow" th:disabled="${cake.stockQuantity <= 0}" onclick="handleAddToCart()">
                                 <i class="bi bi-cart-plus-fill me-2"></i> THÊM GIỎ HÀNG
                             </button>
                         </div>
                         <div class="col-6">
-                            <a th:href="@{/cake}" class="btn btn-bunny-outline w-100">
-                                <i class="bi bi-house-heart me-2"></i> TRANG CHỦ
-                            </a>
+                            <a th:href="@{/cake}" class="btn btn-bunny-outline w-100"><i class="bi bi-house-heart me-2"></i> TRANG CHỦ</a>
                         </div>
                     </div>
                 </form>
@@ -179,17 +188,94 @@
         </div>
     </div>
 
+    <div class="card detail-card p-4 p-lg-5 mt-5 shadow-lg border-0">
+        <h2 class="cake-title text-center mb-5" style="font-size: 2.5rem;">Khách hàng trải nghiệm 🐰</h2>
+
+        <div th:if="${canReview}" class="text-center mb-5 p-4 rounded-4" style="background: #fffafa; border: 2px dashed #ff4d6d;">
+            <h4 class="fw-bold text-danger mb-3">Bánh có ngon không ạ? Hãy chia sẻ cho Bunny nhé!</h4>
+            <button class="btn btn-bunny-main px-5 py-3 rounded-pill shadow" data-bs-toggle="modal" data-bs-target="#reviewModal">VIẾT ĐÁNH GIÁ NGAY</button>
+        </div>
+
+        <div class="reviews-container">
+            <div th:each="rev : ${reviews}" class="mb-5 pb-4 border-bottom">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-review me-3" th:text="${#strings.substring(rev.user.fullName,0,1)}"></div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark" th:text="${rev.user.fullName}"></h6>
+                            <div class="text-warning small">
+                                <i th:each="i : ${#numbers.sequence(1, 5)}" th:class="${i <= rev.rating ? 'bi bi-star-fill' : 'bi bi-star'}"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted" th:text="${#temporals.format(rev.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
+                </div>
+                <p class="fs-5 text-dark" th:text="${rev.comment}"></p>
+                <img th:if="${rev.image}" th:src="${rev.image}" class="review-img-thumb mb-3" onclick="window.open(this.src)">
+
+                <div th:each="reply : ${rev.replies}" class="reply-box mb-2 shadow-sm">
+                    <div class="d-flex align-items-center mb-1">
+                        <span class="badge bg-dark me-2">ADMIN</span><strong th:text="${reply.user.fullName}"></strong>
+                    </div>
+                    <p class="mb-0 text-muted" th:text="${reply.comment}"></p>
+                </div>
+
+                <div sec:authorize="hasRole('ADMIN')" class="mt-2 ms-5">
+                    <button class="btn btn-sm text-danger fw-bold p-0" th:onclick="'toggleR(' + ${rev.id} + ')'">Trả lời khách</button>
+                    <form th:id="'rf-' + ${rev.id}" th:action="@{/review/reply}" method="post" class="mt-2" style="display:none;">
+                        <input type="hidden" name="parentId" th:value="${rev.id}">
+                        <input type="hidden" name="cakeId" th:value="${cake.id}">
+                        <div class="input-group shadow-sm rounded-pill border overflow-hidden">
+                            <input type="text" name="comment" class="form-control border-0 ps-3 shadow-none" placeholder="Nhập phản hồi..." required>
+                            <button class="btn btn-danger px-3 border-0">Gửi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <form th:action="@{/review/add}" method="post" enctype="multipart/form-data" class="modal-content border-0 rounded-5 shadow-lg">
+                <div class="modal-body p-4 text-center">
+                    <h4 class="fw-bold mb-4">Gửi đánh giá cho Bunny</h4>
+                    <div class="star-rating mb-4">
+                        <input type="radio" id="s5" name="rating" value="5" checked/><label for="s5" class="bi bi-star-fill"></label>
+                        <input type="radio" id="s4" name="rating" value="4"/><label for="s4" class="bi bi-star-fill"></label>
+                        <input type="radio" id="s3" name="rating" value="3"/><label for="s3" class="bi bi-star-fill"></label>
+                        <input type="radio" id="s2" name="rating" value="2"/><label for="s2" class="bi bi-star-fill"></label>
+                        <input type="radio" id="s1" name="rating" value="1"/><label for="s1" class="bi bi-star-fill"></label>
+                    </div>
+                    <textarea name="comment" class="form-control rounded-4 mb-3 border-danger shadow-none" rows="4" placeholder="Cảm nhận của bạn..." required></textarea>
+                    <div class="text-start mb-4">
+                        <label class="small fw-bold text-muted mb-2">ĐÍNH KÈM ẢNH THỰC TẾ</label>
+                        <input type="file" name="file" class="form-control rounded-pill border-danger" accept="image/*">
+                    </div>
+                    <input type="hidden" name="cakeId" th:value="${cake.id}">
+                    <button type="submit" class="btn btn-bunny-main w-100 py-3 rounded-pill fs-5">GỬI ĐÁNH GIÁ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script th:inline="javascript">
+        // LOGIC GỐC (GIỮ NGUYÊN)
+        const isAuthenticated = [[${#authentication.name != 'anonymousUser'}]];
+        function handleAddToCart() {
+            if (!isAuthenticated) { alert("Bạn vui lòng đăng nhập nhé! 🐰"); window.location.href = '/auth/login'; }
+            else { document.getElementById('addToCartForm').submit(); }
+        }
         function adjustQty(amount) {
             const qtyInput = document.getElementById('quantity');
-            const maxQuantity = [[${cake.stockQuantity}]];
-            let currentVal = parseInt(qtyInput.value) || 1;
-            let newVal = currentVal + amount;
-            if (newVal >= 1 && newVal <= maxQuantity) {
-                qtyInput.value = newVal;
-            } else if (newVal > maxQuantity) {
-                alert("Rất tiếc, Bunny chỉ còn " + maxQuantity + " chiếc thôi ạ!");
-            }
+            const max = [[${cake.stockQuantity}]];
+            let val = (parseInt(qtyInput.value) || 1) + amount;
+            if (val >= 1 && val <= max) qtyInput.value = val;
+            else if (val > max) alert("Bunny chỉ còn " + max + " chiếc thôi ạ!");
+        }
+        function toggleR(id) {
+            let f = document.getElementById('rf-' + id);
+            f.style.display = (f.style.display === 'none') ? 'block' : 'none';
         }
     </script>
 </main>
