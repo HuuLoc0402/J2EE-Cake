@@ -11,11 +11,16 @@ import java.nio.file.Paths;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Cấu hình để xem được ảnh ngay sau khi upload mà không cần restart server
-        Path uploadDir = Paths.get("src/main/resources/static/images/");
-        String uploadPath = uploadDir.toFile().getAbsolutePath();
-
+        // 1. Cấu hình cho ảnh sản phẩm (Cũ của bạn)
+        Path imageDir = Paths.get("src/main/resources/static/images/");
+        String imagePath = imageDir.toFile().getAbsolutePath();
         registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:/" + imagePath + "/");
+
+        // 2. Cấu hình cho ảnh Đánh giá (Mới - Để hiển thị ảnh review khách upload)
+        Path uploadDir = Paths.get("src/main/resources/static/uploads/");
+        String uploadPath = uploadDir.toFile().getAbsolutePath();
+        registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:/" + uploadPath + "/");
     }
 }

@@ -1,40 +1,81 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main-layout :: layout(~{::main})}">
 <body>
-<main class="h-100">
-    <div class="row g-0 rounded-4 shadow-lg bg-white overflow-hidden" style="height: calc(100vh - 140px); min-height: 550px;">
-        <div class="col-md-4 border-end bg-light d-flex flex-column h-100">
-            <div class="p-3 bg-white border-bottom shadow-sm d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-people-fill me-2"></i>Hỗ trợ trực tuyến</h6>
-                <span id="chatCountBadge" class="badge bg-danger rounded-pill" th:text="${openChats.size() + ' khách'}"></span>
+<main class="h-100 py-3">
+    <style>
+        /* GIAO DIỆN ĐỒNG NHẤT BUNNY BAKERY */
+        .admin-chat-wrapper { height: calc(100vh - 160px); min-height: 600px; background: white; border-radius: 30px !important; border: 2px solid var(--soft-pink); overflow: hidden; }
+        .chat-sidebar { background: #fffafa; border-right: 2px solid #fdf2f4; }
+        .chat-card { border-radius: 15px !important; margin: 8px 12px; border: none !important; transition: 0.3s; width: calc(100% - 24px); cursor: pointer; position: relative; }
+        .chat-card.active-chat { background-color: #ffe4e8 !important; border-left: 5px solid #dc3545 !important; }
+        .chat-card:hover:not(.active-chat) { background-color: #fff0f5; }
+
+        .message-bubble-admin { max-width: 80%; border-radius: 20px !important; padding: 12px 18px; font-weight: 500; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .bg-bunny-red { background-color: #dc3545 !important; color: white !important; align-self: flex-end; }
+        .bg-bunny-white { background-color: #ffffff !important; border: 1px solid #dee2e6 !important; color: #212529 !important; align-self: flex-start; }
+
+        .avatar-circle-admin { width: 45px; height: 45px; background-color: #dc3545; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
+
+        /* Badge thông báo n tin nhắn ở góc trên bên phải */
+        .unread-count-badge {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.75rem;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        #chatBox::-webkit-scrollbar { width: 5px; }
+        #chatBox::-webkit-scrollbar-thumb { background: #ffccd5; border-radius: 10px; }
+    </style>
+
+    <div class="row g-0 shadow-lg admin-chat-wrapper mx-lg-4">
+        <div class="col-md-4 d-flex flex-column h-100 chat-sidebar">
+            <div class="p-4 bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Pacifico', cursive;">
+                    <i class="bi bi-chat-heart-fill text-danger me-2"></i>Tin nhắn khách
+                </h5>
+                <span id="chatCountBadge" class="badge bg-danger rounded-pill px-3" th:text="${openChats.size() + ' khách'}"></span>
             </div>
-            <div id="adminChatList" class="list-group list-group-flush overflow-y-auto flex-grow-1">
+
+            <div id="adminChatList" class="list-group list-group-flush overflow-y-auto flex-grow-1 py-2">
                 <button th:each="chat : ${openChats}" th:if="${chat.user != null}" th:id="'card-' + ${chat.user.id}"
                         th:onclick="window.loadHistory([[${chat.user.id}]], [[${chat.user.fullName}]])"
-                        class="list-group-item list-group-item-action p-3 chat-card border-0">
-                    <div class="d-flex align-items-center text-start">
-                        <div class="avatar-circle me-3 bg-danger text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 45px; height: 45px; flex-shrink: 0;">
-                            <span th:text="${chat.user.fullName != null ? #strings.substring(chat.user.fullName,0,1) : 'U'}"></span>
-                        </div>
-                        <div class="overflow-hidden">
-                            <span class="fw-bold d-block text-dark text-truncate" th:text="${chat.user.fullName ?: 'Khách hàng'}"></span>
-                            <small class="text-success">Đang trực tuyến</small>
-                        </div>
+                        class="list-group-item list-group-item-action chat-card shadow-sm d-flex align-items-center">
+                    <div class="avatar-circle-admin me-3">
+                        <span th:text="${#strings.substring(chat.user.fullName,0,1)}"></span>
                     </div>
+                    <div class="overflow-hidden flex-grow-1 text-start">
+                        <span class="fw-bold d-block text-dark text-truncate" th:text="${chat.user.fullName}"></span>
+                        <small class="text-success fw-bold">Online</small>
+                    </div>
+                    <div th:id="'count-' + ${chat.user.id}" class="unread-count-badge d-none">0</div>
                 </button>
             </div>
         </div>
 
-        <div class="col-md-8 d-flex flex-column bg-white h-100">
-            <div id="chatHeader" class="p-3 border-bottom fw-bold text-danger bg-white shadow-sm">
-                <i class="bi bi-chat-left-dots-fill me-2"></i> <span id="headerTitle">Hỗ trợ khách hàng</span>
+        <div class="col-md-8 d-flex flex-column h-100 bg-white">
+            <div id="chatHeader" class="p-3 border-bottom shadow-sm bg-white d-flex align-items-center">
+                <h6 id="headerTitle" class="mb-0 fw-bold text-danger">Chọn khách hàng để phản hồi</h6>
             </div>
+
             <div id="chatBox" class="flex-grow-1 p-4 overflow-y-auto" style="background: #fdf2f4;">
                 <div id="messageArea" class="d-flex flex-column"></div>
             </div>
-            <div class="p-3 border-top bg-white">
+
+            <div class="p-4 border-top bg-white">
                 <div class="input-group shadow-sm rounded-pill border p-1 bg-light">
-                    <input type="text" id="adminInput" class="form-control border-0 ps-4 shadow-none bg-transparent" placeholder="Nhập nội dung phản hồi..." disabled onkeypress="if(event.key === 'Enter') window.sendAdminWS()">
+                    <input type="text" id="adminInput" class="form-control border-0 ps-4 shadow-none bg-transparent" placeholder="Nhập tin nhắn..." disabled onkeypress="if(event.key === 'Enter') window.sendAdminWS()">
                     <button class="btn btn-danger px-4 rounded-pill fw-bold" id="btnSend" onclick="window.sendAdminWS()" disabled>Gửi</button>
                 </div>
             </div>
@@ -44,46 +85,97 @@
     <script th:inline="javascript">
         var stompAdmin = null;
         var activeUserId = null;
+        var unreadData = {};
 
-        // 1. KẾT NỐI VÀ NHẬN TIN
         function connectAdmin() {
             const socket = new SockJS('/ws-chat');
             stompAdmin = Stomp.over(socket);
             stompAdmin.debug = null;
             stompAdmin.connect({}, function() {
-                console.log("Admin WebSocket connected.");
+                console.log("Admin Connected Successfully.");
                 stompAdmin.subscribe('/topic/admin/chats', function(msg) {
                     const data = JSON.parse(msg.body);
-                    console.log("Admin nhận được tin nhắn:", data);
+                    console.log("New Message Received:", data);
 
-                    // Logic cập nhật Sidebar: Nếu có data.chat.user hoặc data.user
-                    const user = data.chat ? data.chat.user : null;
-                    if (user) {
-                        window.updateSidebar(user);
-                        // HIỂN THỊ NGAY: Nếu ID người gửi khớp với người đang chat
-                        if (activeUserId && String(activeUserId) === String(user.id)) {
-                            window.renderAdmin(data);
+                    // Logic lấy User ID an toàn từ payload của bạn
+                    let userObj = data.chat ? data.chat.user : (data.user ? data.user : null);
+
+                    if (userObj && userObj.id) {
+                        const sId = userObj.id;
+
+                        // 1. Tự động tạo thẻ nếu là người mới hoàn toàn
+                        if (!document.getElementById('card-' + sId)) {
+                            console.log("New User Detected, Creating Card...");
+                            window.createDynamicCard(userObj);
                         }
-                    } else if (data.senderRole === 'ROLE_USER') {
-                        // Trường hợp đặc biệt: Nếu server trả về message đơn lẻ không bọc chat
-                        // Chúng ta vẫn render nếu admin đang mở bất kỳ khung chat nào (tạm thời)
-                        window.renderAdmin(data);
+
+                        // 2. Luôn đẩy người vừa nhắn lên đầu danh sách
+                        window.moveCardToTop(sId);
+
+                        // 3. Hiển thị tin nhắn hoặc cập nhật Badge n
+                        if (activeUserId && String(activeUserId) === String(sId)) {
+                            window.renderAdmin(data);
+                        } else if (data.senderRole === 'ROLE_USER') {
+                            window.incrementBadge(sId);
+                        }
                     }
                 });
-            }, () => setTimeout(connectAdmin, 5000));
+            }, function(err) {
+                console.error("Connection Error, retrying in 5s...");
+                setTimeout(connectAdmin, 5000);
+            });
         }
 
-        // 2. TẢI LỊCH SỬ
-        window.loadHistory = async function(userId, fullName) {
-            activeUserId = userId;
-            document.getElementById('headerTitle').innerText = "Hỗ trợ: " + fullName;
+        window.createDynamicCard = function(user) {
+            const list = document.getElementById('adminChatList');
+            const name = user.fullName || "Khách hàng";
+            const firstChar = name.substring(0,1);
+            const html = `
+                <button id="card-${user.id}" onclick="window.loadHistory(${user.id}, '${name}')"
+                        class="list-group-item list-group-item-action chat-card shadow-sm d-flex align-items-center">
+                    <div class="avatar-circle-admin me-3"><span>${firstChar}</span></div>
+                    <div class="overflow-hidden flex-grow-1 text-start">
+                        <span class="fw-bold d-block text-dark text-truncate">${name}</span>
+                        <small class="text-success fw-bold">Online</small>
+                    </div>
+                    <div id="count-${user.id}" class="unread-count-badge d-none">0</div>
+                </button>`;
+            list.insertAdjacentHTML('afterbegin', html);
+
+            const badge = document.getElementById('chatCountBadge');
+            let count = parseInt(badge.innerText) || 0;
+            badge.innerText = (count + 1) + " khách";
+        };
+
+        window.incrementBadge = function(id) {
+            unreadData[id] = (unreadData[id] || 0) + 1;
+            const badgeElement = document.getElementById('count-' + id);
+            if (badgeElement) {
+                badgeElement.innerText = unreadData[id];
+                badgeElement.classList.remove('d-none');
+            }
+        };
+
+        window.moveCardToTop = function(id) {
+            const list = document.getElementById('adminChatList');
+            const card = document.getElementById('card-' + id);
+            if (card && list) list.prepend(card);
+        };
+
+        window.loadHistory = async function(id, name) {
+            activeUserId = id;
+            unreadData[id] = 0;
+            const badgeElement = document.getElementById('count-' + id);
+            if (badgeElement) badgeElement.classList.add('d-none');
+
+            document.getElementById('headerTitle').innerText = "Hỗ trợ: " + name;
             document.getElementById('adminInput').disabled = false;
             document.getElementById('btnSend').disabled = false;
 
-            document.querySelectorAll('.chat-card').forEach(c => c.classList.remove('active-chat', 'bg-warning-subtle'));
-            document.getElementById('card-' + userId)?.classList.add('active-chat');
+            document.querySelectorAll('.chat-card').forEach(c => c.classList.remove('active-chat'));
+            document.getElementById('card-' + id)?.classList.add('active-chat');
 
-            const res = await fetch('/admin/chats/history/' + userId);
+            const res = await fetch('/admin/chats/history/' + id);
             const messages = await res.json();
             const area = document.getElementById('messageArea');
             area.innerHTML = '';
@@ -91,62 +183,38 @@
             window.scrollToBottom();
         };
 
-        // 3. GỬI TIN
         window.sendAdminWS = function() {
             const inp = document.getElementById('adminInput');
             const content = inp.value.trim();
-            if (content && stompAdmin?.connected && activeUserId) {
+            if (content && stompAdmin && stompAdmin.connected && activeUserId) {
                 const payload = {
                     content: content,
                     senderRole: 'ROLE_ADMIN',
                     chat: { user: { id: parseInt(activeUserId) } }
                 };
                 stompAdmin.send("/app/chat.send", {}, JSON.stringify(payload));
-                window.renderAdmin(payload); // Hiển thị tin nhắn Admin vừa gửi
+                window.renderAdmin(payload);
                 inp.value = '';
             }
         };
 
-        // 4. VẼ TIN NHẮN (QUAN TRỌNG: Sửa logic nhận diện vai trò)
         window.renderAdmin = function(msg) {
             const area = document.getElementById('messageArea');
             if (!area) return;
-
             const isMe = msg.senderRole === 'ROLE_ADMIN';
-            const html = `
-                <div class="mb-3 d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}">
-                    <div class="p-3 shadow-sm ${isMe ? 'bg-danger text-white' : 'bg-white border text-dark'}"
-                         style="max-width: 75%; border-radius: 20px; font-size: 0.95rem;">
-                        ${msg.content}
-                    </div>
-                </div>`;
+            const html = `<div class="d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}">
+                <div class="message-bubble-admin shadow-sm ${isMe ? 'bg-bunny-red' : 'bg-bunny-white'}">${msg.content}</div></div>`;
             area.insertAdjacentHTML('beforeend', html);
             window.scrollToBottom();
         };
 
-        window.updateSidebar = function(user) {
-            const list = document.getElementById('adminChatList');
-            const card = document.getElementById('card-' + user.id);
-            if (card) {
-                list.prepend(card);
-                if (String(activeUserId) !== String(user.id)) card.classList.add('bg-warning-subtle');
-            }
-        };
-
-        window.scrollToBottom = function() {
+        window.scrollToBottom = () => {
             const box = document.getElementById('chatBox');
             if (box) box.scrollTop = box.scrollHeight;
         };
 
         window.onload = connectAdmin;
     </script>
-
-    <style>
-        .chat-card.active-chat { background-color: #ffe4e8 !important; border-left: 4px solid #dc3545 !important; }
-        .bg-warning-subtle { background-color: #fff3cd !important; }
-        #chatBox::-webkit-scrollbar { width: 5px; }
-        #chatBox::-webkit-scrollbar-thumb { background: #ffccd5; border-radius: 10px; }
-    </style>
 </main>
 </body>
 </html>
